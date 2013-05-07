@@ -144,7 +144,7 @@ public class ArtifactUtils
         return path;
     }
 
-    public org.sonatype.aether.artifact.Artifact convertToSonatypeArtifact(Artifact artifact)
+    public static org.sonatype.aether.artifact.Artifact convertToSonatypeArtifact(Artifact artifact)
     {
         return new org.sonatype.aether.util.artifact.DefaultArtifact(artifact.getGroupId(),
                                                                      artifact.getArtifactId(),
@@ -153,7 +153,7 @@ public class ArtifactUtils
                                                                      artifact.getVersion());
     }
 
-    public Artifact convertSonatypeArtifactToMavenArtifact(org.sonatype.aether.artifact.Artifact artifact)
+    public static Artifact convertSonatypeArtifactToMavenArtifact(org.sonatype.aether.artifact.Artifact artifact)
     {
         return new DefaultArtifact(artifact.getGroupId(),
                                    artifact.getArtifactId(),

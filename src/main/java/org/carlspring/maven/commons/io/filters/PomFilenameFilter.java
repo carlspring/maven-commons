@@ -1,4 +1,4 @@
-package org.carlspring.maven.commons.io;
+package org.carlspring.maven.commons.io.filters;
 
 /**
  * Copyright 2013 Martin Todorov.
@@ -17,19 +17,19 @@ package org.carlspring.maven.commons.io;
  */
 
 import java.io.File;
-import java.io.FileFilter;
+import java.io.FilenameFilter;
 
 /**
  * @author mtodorov
  */
-public class DirectoryFilter
-        implements FileFilter
+public class PomFilenameFilter
+        implements FilenameFilter
 {
 
     @Override
-    public boolean accept(File file)
+    public boolean accept(File dir, String name)
     {
-        return file.isDirectory();
+        return name.endsWith(".pom");
     }
 
 }

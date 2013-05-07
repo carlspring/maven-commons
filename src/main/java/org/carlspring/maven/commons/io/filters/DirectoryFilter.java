@@ -1,4 +1,4 @@
-package org.carlspring.maven.commons.io;
+package org.carlspring.maven.commons.io.filters;
 
 /**
  * Copyright 2013 Martin Todorov.
@@ -17,20 +17,19 @@ package org.carlspring.maven.commons.io;
  */
 
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileFilter;
 
 /**
  * @author mtodorov
  */
-public class ArtifactFilter
-        implements FilenameFilter
+public class DirectoryFilter
+        implements FileFilter
 {
 
     @Override
-    public boolean accept(File dir,
-                          String name)
+    public boolean accept(File file)
     {
-        return !name.contains("pom") && !name.contains("backup");
+        return file.isDirectory();
     }
 
 }

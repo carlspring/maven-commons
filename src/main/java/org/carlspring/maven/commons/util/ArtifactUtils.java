@@ -153,4 +153,15 @@ public class ArtifactUtils
                                                                      artifact.getVersion());
     }
 
+    public Artifact convertSonatypeArtifactToMavenArtifact(org.sonatype.aether.artifact.Artifact artifact)
+    {
+        return new DefaultArtifact(artifact.getGroupId(),
+                                   artifact.getArtifactId(),
+                                   artifact.getVersion(),
+                                   "compile",
+                                   artifact.getExtension(),
+                                   artifact.getClassifier(),
+                                   new DefaultArtifactHandler(artifact.getExtension()));
+    }
+
 }

@@ -19,7 +19,11 @@ package org.carlspring.maven.commons.util;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.apache.maven.model.Dependency;
+
+import java.io.File;
 
 /**
  * @author mtodorov
@@ -144,6 +148,18 @@ public class ArtifactUtils
         return path;
     }
 
+    public static String getPathToArtifact(Artifact artifact,
+                                           ArtifactRepository localRepository)
+    {
+        File localArtifactDir = new File(localRepository.getBasedir(),
+                                         localRepository.pathOf(artifact)).getParentFile();
+
+        return new File(localArtifactDir,
+                        artifact.getArtifactId() + "-" +
+                        artifact.getVersion() + (artifact.getClassifier() != null ? "-" + artifact.getClassifier() : "") +
+                        "." + artifact.getType()).getAbsolutePath();
+    }
+
     public static org.sonatype.aether.artifact.Artifact convertToSonatypeArtifact(Artifact artifact)
     {
         return new org.sonatype.aether.util.artifact.DefaultArtifact(artifact.getGroupId(),
@@ -162,6 +178,17 @@ public class ArtifactUtils
                                    artifact.getExtension(),
                                    artifact.getClassifier(),
                                    new DefaultArtifactHandler(artifact.getExtension()));
+    }
+
+    public static Artifact convertDependencyToArtifact(Dependency dependency)
+    {
+        return new DefaultArtifact(dependency.getGroupId(),
+                                   dependency.getArtifactId(),
+                                   VersionRange.createFromVersion(dependency.getVersion()),
+                                   dependency.getScope(),
+                                   dependency.getType(),
+                                   dependency.getClassifier(),
+                                   new DefaultArtifactHandler(dependency.getType()));
     }
 
 }

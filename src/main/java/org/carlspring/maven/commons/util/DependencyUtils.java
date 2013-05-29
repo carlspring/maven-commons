@@ -5,6 +5,8 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.carlspring.maven.commons.util.ArtifactUtils.convertDependencyToArtifact;
 import static org.carlspring.maven.commons.util.ArtifactUtils.getPathToArtifact;
@@ -51,6 +53,18 @@ public class DependencyUtils
         dependency.setType(artifact.getType());
 
         return dependency;
+    }
+
+    public static List<Dependency> convertToArtifactsList(List<Artifact> artifacts)
+    {
+        List<Dependency> dependencies = new ArrayList<Dependency>();
+
+        for (Artifact artifact : artifacts)
+        {
+            dependencies.add(convertArtifactToDependency(artifact));
+        }
+
+        return dependencies;
     }
 
 }

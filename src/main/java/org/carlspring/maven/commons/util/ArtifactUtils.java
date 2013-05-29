@@ -24,6 +24,9 @@ import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author mtodorov
@@ -189,6 +192,42 @@ public class ArtifactUtils
                                    dependency.getType(),
                                    dependency.getClassifier(),
                                    new DefaultArtifactHandler(dependency.getType()));
+    }
+
+    public static List<Artifact> convertToArtifactsList(List<Dependency> dependencies)
+    {
+        List<Artifact> artifacts = new ArrayList<Artifact>();
+
+        for (Dependency dependency : dependencies)
+        {
+            artifacts.add(convertDependencyToArtifact(dependency));
+        }
+
+        return artifacts;
+    }
+
+    public static List<org.sonatype.aether.artifact.Artifact> convertToSonatypeArtifacts(Collection<Artifact> mavenArtifacts)
+    {
+        List<org.sonatype.aether.artifact.Artifact> artifacts = new ArrayList<org.sonatype.aether.artifact.Artifact>();
+
+        for (Artifact artifact : mavenArtifacts)
+        {
+            artifacts.add(convertToSonatypeArtifact(artifact));
+        }
+
+        return artifacts;
+    }
+
+    public static List<Artifact> convertToMavenArtifacts(Collection<org.sonatype.aether.artifact.Artifact> mavenArtifacts)
+    {
+        List<Artifact> artifacts = new ArrayList<Artifact>();
+
+        for (org.sonatype.aether.artifact.Artifact artifact : mavenArtifacts)
+        {
+            artifacts.add(convertSonatypeArtifactToMavenArtifact(artifact));
+        }
+
+        return artifacts;
     }
 
 }

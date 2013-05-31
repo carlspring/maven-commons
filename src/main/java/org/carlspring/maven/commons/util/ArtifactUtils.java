@@ -230,4 +230,63 @@ public class ArtifactUtils
         return artifacts;
     }
 
+    /**
+     * Converts groupId:artifactId:type:version:scope to an Artifact.
+     *
+     * @param gav
+     * @return
+     */
+    public static Artifact getArtifactFromGAV(String gav)
+    {
+        return getArtifactFromGAVTC(gav);
+    }
+
+    /**
+     * Converts groupId:artifactId:type:version:scope to an Artifact.
+     *
+     * @param gavtc
+     * @return
+     */
+    public static Artifact getArtifactFromGAVTC(String gavtc)
+    {
+        String[] gavComponents = gavtc.split(":");
+
+        String groupId = gavComponents[0];
+        String artifactId = gavComponents[1];
+        String version = gavComponents[2];
+        String type = gavComponents.length < 4 ? "jar": gavComponents[3];
+        String classifier = gavComponents.length < 5 ? null : gavComponents[4];
+
+        return new DefaultArtifact(groupId,
+                                   artifactId,
+                                   version,
+                                   "compile",
+                                   type,
+                                   classifier,
+                                   new DefaultArtifactHandler(type));
+    }
+
+    /**
+     * Converts groupId:artifactId:type:version:scope to an Artifact.
+     *
+     * @param gavtc
+     * @return
+     */
+    public static Artifact getPOMForArtifactFromGAV(String gav)
+    {
+        String[] gavComponents = gav.split(":");
+
+        String groupId = gavComponents[0];
+        String artifactId = gavComponents[1];
+        String version = gavComponents[2];
+
+        return new DefaultArtifact(groupId,
+                                   artifactId,
+                                   version,
+                                   "compile",
+                                   "pom",
+                                   null,
+                                   new DefaultArtifactHandler("pom"));
+    }
+
 }

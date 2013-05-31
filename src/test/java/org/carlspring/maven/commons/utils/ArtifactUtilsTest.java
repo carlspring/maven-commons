@@ -25,7 +25,8 @@ public class ArtifactUtilsTest
     @Test
     public void testIsCheckSum()
     {
-        assertFalse("Failed checksum check!", ArtifactUtils.isChecksum("org/carlspring/maven/foo/1.0-SNAPSHOT/maven-metadata.xml"));
+        assertFalse("Failed checksum check!",
+                    ArtifactUtils.isChecksum("org/carlspring/maven/foo/1.0-SNAPSHOT/maven-metadata.xml"));
         assertFalse("Failed checksum check!", ArtifactUtils.isChecksum("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar"));
         assertTrue("Failed checksum check!",
                    ArtifactUtils.isChecksum("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar.sha1"));
@@ -36,7 +37,8 @@ public class ArtifactUtilsTest
     @Test
     public void testIsArtifact()
     {
-        assertFalse("Failed artifact check!", ArtifactUtils.isArtifact("org/carlspring/maven/foo/1.0-SNAPSHOT/maven-metadata.xml"));
+        assertFalse("Failed artifact check!",
+                    ArtifactUtils.isArtifact("org/carlspring/maven/foo/1.0-SNAPSHOT/maven-metadata.xml"));
         assertTrue("Failed artifact check!",
                    ArtifactUtils.isArtifact("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar"));
         assertFalse("Failed artifact check!",
@@ -76,6 +78,62 @@ public class ArtifactUtilsTest
         final String path = ArtifactUtils.convertArtifactToPath(artifact);
 
         assertEquals("Failed to properly convert the artifact to a path!", pathForObjectConstruction, path);
+    }
+
+    @Test
+    public void testGAVToArtifact()
+    {
+        Artifact artifact = ArtifactUtils.getArtifactFromGAV("com.foo:bar:1.0");
+
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact);
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getGroupId());
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getArtifactId());
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getVersion());
+
+        System.out.println(artifact);
+    }
+
+    @Test
+    public void testGAVTCWithTypeToArtifact()
+    {
+        Artifact artifact = ArtifactUtils.getArtifactFromGAV("com.foo:bar:1.0:war");
+
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact);
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getGroupId());
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getArtifactId());
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getVersion());
+        assertEquals("Failed to properly parse artifact based on GAV!", "war", artifact.getType());
+
+        System.out.println(artifact);
+    }
+
+    @Test
+    public void testGAVTCToArtifact()
+    {
+        Artifact artifact = ArtifactUtils.getArtifactFromGAV("com.foo:bar:1.0:war:x86");
+
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact);
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getGroupId());
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getArtifactId());
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getVersion());
+        assertEquals("Failed to properly parse artifact based on GAV!", "war", artifact.getType());
+        assertEquals("Failed to properly parse artifact based on GAV!", "x86", artifact.getClassifier());
+
+        System.out.println(artifact);
+    }
+
+    @Test
+    public void testPOMForArtifactFromGAV()
+    {
+        Artifact artifact = ArtifactUtils.getPOMForArtifactFromGAV("com.foo:bar:1.0");
+
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact);
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getGroupId());
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getArtifactId());
+        assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getVersion());
+        assertEquals("Failed to properly parse artifact based on GAV!", "pom", artifact.getType());
+
+        System.out.println(artifact);
     }
 
 }

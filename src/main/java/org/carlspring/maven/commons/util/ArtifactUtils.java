@@ -269,10 +269,10 @@ public class ArtifactUtils
     /**
      * Converts groupId:artifactId:type:version:scope to an Artifact.
      *
-     * @param gavtc
+     * @param gav
      * @return
      */
-    public static Artifact getPOMForArtifactFromGAV(String gav)
+    public static Artifact getPOMArtifactFromGAV(String gav)
     {
         String[] gavComponents = gav.split(":");
 
@@ -287,6 +287,22 @@ public class ArtifactUtils
                                    "pom",
                                    null,
                                    new DefaultArtifactHandler("pom"));
+    }
+
+    public static Artifact getPOMArtifact(Artifact artifact)
+    {
+        return new DefaultArtifact(artifact.getGroupId(),
+                                   artifact.getArtifactId(),
+                                   artifact.getVersion(),
+                                   "compile",
+                                   "pom",
+                                   null,
+                                   new DefaultArtifactHandler("pom"));
+    }
+
+    public static File getPOMFile(Artifact artifact, ArtifactRepository localRepository)
+    {
+        return new File(getPathToArtifact(getPOMArtifact(artifact), localRepository));
     }
 
 }

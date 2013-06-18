@@ -110,12 +110,12 @@ public class DirectoryFilter
 
     public void addExclude(String exclude)
     {
-        includes.add(exclude);
+        excludes.add(exclude);
     }
 
     public void removeExclude(String exclude)
     {
-        includes.remove(exclude);
+        excludes.remove(exclude);
     }
 
 }

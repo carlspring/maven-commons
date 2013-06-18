@@ -1,6 +1,7 @@
-package org.carlspring.maven.commons.util;
+package org.carlspring.maven.commons.utils;
 
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.junit.Test;
 
 import static junit.framework.Assert.*;
@@ -125,7 +126,7 @@ public class ArtifactUtilsTest
     @Test
     public void testPOMForArtifactFromGAV()
     {
-        Artifact artifact = ArtifactUtils.getPOMForArtifactFromGAV("com.foo:bar:1.0");
+        Artifact artifact = ArtifactUtils.getPOMArtifactFromGAV("com.foo:bar:1.0");
 
         assertNotNull("Failed to properly parse artifact based on GAV!", artifact);
         assertNotNull("Failed to properly parse artifact based on GAV!", artifact.getGroupId());

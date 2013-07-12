@@ -305,4 +305,15 @@ public class ArtifactUtils
         return new File(getPathToArtifact(getPOMArtifact(artifact), localRepository));
     }
 
+    public static boolean exists(Artifact artifact, ArtifactRepository localRepository)
+    {
+        return new File(getPathToArtifact(artifact, localRepository)).exists();
+    }
+
+    public static boolean exists(String gav, ArtifactRepository localRepository)
+    {
+        Artifact artifact = getArtifactFromGAVTC(gav);
+        return new File(getPathToArtifact(artifact, localRepository)).exists();
+    }
+
 }

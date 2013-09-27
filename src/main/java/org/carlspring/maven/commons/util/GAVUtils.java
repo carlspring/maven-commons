@@ -15,6 +15,13 @@ public class GAVUtils
     public static boolean matches(String gav,
                                   String gavPattern)
     {
+        final String[] gavElementsFilterScope = gav.split(":");
+        if (equalsScopetype(gavElementsFilterScope[gavElementsFilterScope.length - 1]))
+        {
+            // Remove the scope
+            gav = gav.substring(0, gav.lastIndexOf(":"));
+        }
+
         final String[] elements = gavPattern.split(":");
         final int gavElementsLength = gav.split(":").length;
 
@@ -34,10 +41,19 @@ public class GAVUtils
 
         gavPattern = gavPattern.replaceAll("\\*", "\\.\\*");
 
+        // System.out.println("   gav = '" + gav + "', pattern = '" + gavPattern + "'");
+
         Pattern p = Pattern.compile(gavPattern);
         Matcher m = p.matcher(gav);
 
         return m.matches();
+    }
+
+    private static boolean equalsScopetype(String scope)
+    {
+        return scope.equals("compile") || scope.equals("runtime") ||
+               scope.equals("test") || scope.equals("optional") ||
+               scope.equals("system");
     }
 
 }

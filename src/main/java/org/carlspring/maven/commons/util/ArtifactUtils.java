@@ -163,26 +163,6 @@ public class ArtifactUtils
                         "." + artifact.getType()).getAbsolutePath();
     }
 
-    public static org.sonatype.aether.artifact.Artifact convertToSonatypeArtifact(Artifact artifact)
-    {
-        return new org.sonatype.aether.util.artifact.DefaultArtifact(artifact.getGroupId(),
-                                                                     artifact.getArtifactId(),
-                                                                     artifact.getClassifier(),
-                                                                     artifact.getType(),
-                                                                     artifact.getVersion());
-    }
-
-    public static Artifact convertSonatypeArtifactToMavenArtifact(org.sonatype.aether.artifact.Artifact artifact)
-    {
-        return new DefaultArtifact(artifact.getGroupId(),
-                                   artifact.getArtifactId(),
-                                   artifact.getVersion(),
-                                   "compile",
-                                   artifact.getExtension(),
-                                   artifact.getClassifier(),
-                                   new DefaultArtifactHandler(artifact.getExtension()));
-    }
-
     public static Artifact convertDependencyToArtifact(Dependency dependency)
     {
         return new DefaultArtifact(dependency.getGroupId(),
@@ -201,30 +181,6 @@ public class ArtifactUtils
         for (Dependency dependency : dependencies)
         {
             artifacts.add(convertDependencyToArtifact(dependency));
-        }
-
-        return artifacts;
-    }
-
-    public static List<org.sonatype.aether.artifact.Artifact> convertToSonatypeArtifacts(Collection<Artifact> mavenArtifacts)
-    {
-        List<org.sonatype.aether.artifact.Artifact> artifacts = new ArrayList<org.sonatype.aether.artifact.Artifact>();
-
-        for (Artifact artifact : mavenArtifacts)
-        {
-            artifacts.add(convertToSonatypeArtifact(artifact));
-        }
-
-        return artifacts;
-    }
-
-    public static List<Artifact> convertToMavenArtifacts(Collection<org.sonatype.aether.artifact.Artifact> mavenArtifacts)
-    {
-        List<Artifact> artifacts = new ArrayList<Artifact>();
-
-        for (org.sonatype.aether.artifact.Artifact artifact : mavenArtifacts)
-        {
-            artifacts.add(convertSonatypeArtifactToMavenArtifact(artifact));
         }
 
         return artifacts;

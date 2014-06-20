@@ -144,7 +144,9 @@ public class ArtifactUtils
         path += artifact.getVersion() + "/";
         path += artifact.getArtifactId() + "-";
         path += artifact.getVersion();
-        path += artifact.getClassifier() != null && !artifact.getClassifier().equals("") ?
+        path += artifact.getClassifier() != null &&
+                !artifact.getClassifier().equals("") &&
+                !artifact.getClassifier().equals("null") ?
                 "-" + artifact.getClassifier() : "";
         path += "." + artifact.getType();
 

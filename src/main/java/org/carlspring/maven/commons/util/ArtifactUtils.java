@@ -153,6 +153,23 @@ public class ArtifactUtils
         return path;
     }
 
+    public static String getArtifactFileName(Artifact artifact)
+    {
+        String path = "";
+
+        path += artifact.getArtifactId() + "/";
+        path += artifact.getVersion() + "/";
+        path += artifact.getArtifactId() + "-";
+        path += artifact.getVersion();
+        path += artifact.getClassifier() != null &&
+                !artifact.getClassifier().equals("") &&
+                !artifact.getClassifier().equals("null") ?
+                "-" + artifact.getClassifier() : "";
+        path += "." + artifact.getType();
+
+        return path;
+    }
+
     public static String getPathToArtifact(Artifact artifact,
                                            ArtifactRepository localRepository)
     {

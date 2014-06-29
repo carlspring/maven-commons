@@ -62,6 +62,19 @@ public class ArtifactUtilsTest
     }
 
     @Test
+    public void testGetArtifactFileName()
+    {
+        Artifact artifact = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar");
+
+        final String artifactFileName = ArtifactUtils.getArtifactFileName(artifact);
+
+        assertNotNull("Failed to get artifact file's name!", artifactFileName);
+        assertEquals("Failed to get artifact file's name!", "foo-1.0-SNAPSHOT.jar", artifactFileName);
+
+        System.out.println(artifact.toString());
+    }
+
+    @Test
     public void testArtifactToPathWithoutClassifier()
     {
         final String pathForObjectConstruction = "org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar";

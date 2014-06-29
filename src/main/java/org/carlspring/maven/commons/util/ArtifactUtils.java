@@ -157,8 +157,6 @@ public class ArtifactUtils
     {
         String path = "";
 
-        path += artifact.getArtifactId() + "/";
-        path += artifact.getVersion() + "/";
         path += artifact.getArtifactId() + "-";
         path += artifact.getVersion();
         path += artifact.getClassifier() != null &&

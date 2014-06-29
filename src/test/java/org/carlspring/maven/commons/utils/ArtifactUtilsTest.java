@@ -150,4 +150,16 @@ public class ArtifactUtilsTest
         System.out.println(artifact);
     }
 
+    @Test
+    public void testGetPathToArtifact()
+    {
+        Artifact artifact = ArtifactUtils.getArtifactFromGAV("com.foo:bar:1.0");
+        final String pathToArtifact = ArtifactUtils.getPathToArtifact(artifact, "/path/to/repository");
+
+        assertNotNull("Failed to resolve path to artifact!", pathToArtifact);
+        assertEquals("Failed to resolve path to artifact!", "/path/to/repository/bar-1.0.jar", pathToArtifact);
+
+        System.out.println(artifact);
+    }
+
 }

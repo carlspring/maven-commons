@@ -180,6 +180,17 @@ public class ArtifactUtils
                         "." + artifact.getType()).getAbsolutePath();
     }
 
+    public static String getPathToArtifact(Artifact artifact,
+                                           String localRepositoryDir)
+    {
+        File localArtifactDir = new File(localRepositoryDir);
+
+        return new File(localArtifactDir,
+                        artifact.getArtifactId() + "-" +
+                        artifact.getVersion() + (artifact.getClassifier() != null ? "-" + artifact.getClassifier() : "") +
+                        "." + artifact.getType()).getAbsolutePath();
+    }
+
     public static Artifact convertDependencyToArtifact(Dependency dependency)
     {
         return new DefaultArtifact(dependency.getGroupId(),

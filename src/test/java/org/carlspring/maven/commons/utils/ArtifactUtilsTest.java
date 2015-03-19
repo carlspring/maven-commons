@@ -4,6 +4,9 @@ import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import static junit.framework.Assert.*;
 
 /**
@@ -15,12 +18,14 @@ public class ArtifactUtilsTest
     @Test
     public void testIsMetadata()
     {
-        assertTrue("Failed metadata check!", ArtifactUtils.isMetadata("org/carlspring/maven/foo/1.0-SNAPSHOT/maven-metadata.xml"));
+        assertTrue("Failed metadata check!",
+                   ArtifactUtils.isMetadata("org/carlspring/maven/foo/1.0-SNAPSHOT/maven-metadata.xml"));
         assertFalse("Failed metadata check!",
                     ArtifactUtils.isMetadata("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar"));
         assertFalse("Failed metadata check!",
                     ArtifactUtils.isMetadata("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar.sha1"));
-        assertFalse("Failed metadata check!", ArtifactUtils.isMetadata("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar.md5"));
+        assertFalse("Failed metadata check!",
+                    ArtifactUtils.isMetadata("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar.md5"));
     }
 
     @Test
@@ -28,7 +33,8 @@ public class ArtifactUtilsTest
     {
         assertFalse("Failed checksum check!",
                     ArtifactUtils.isChecksum("org/carlspring/maven/foo/1.0-SNAPSHOT/maven-metadata.xml"));
-        assertFalse("Failed checksum check!", ArtifactUtils.isChecksum("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar"));
+        assertFalse("Failed checksum check!",
+                    ArtifactUtils.isChecksum("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar"));
         assertTrue("Failed checksum check!",
                    ArtifactUtils.isChecksum("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar.sha1"));
         assertTrue("Failed checksum check!",
@@ -92,6 +98,25 @@ public class ArtifactUtilsTest
         final String path = ArtifactUtils.convertArtifactToPath(artifact);
 
         assertEquals("Failed to properly convert the artifact to a path!", pathForObjectConstruction, path);
+    }
+
+    @Test
+    public void testArtifactToPathWithClassifierAndTimestampedSnapshot()
+    {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        String timestamp = formatter.format(Calendar.getInstance().getTime());
+
+        String snapshotVersion = "1.0-SNAPSHOT";
+        String timestampedSnapshotVersion = snapshotVersion + "-" + timestamp;
+
+        String expectedPath = "org/carlspring/maven/foo/" +
+                              snapshotVersion + "/" +
+                              "foo-" + timestampedSnapshotVersion + "-jdk15.jar";
+
+        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.maven:foo:" + timestampedSnapshotVersion + ":jar:jdk15");
+        String path = ArtifactUtils.convertArtifactToPath(artifact);
+
+        assertEquals("Failed to properly convert the artifact to a path!", expectedPath, path);
     }
 
     @Test

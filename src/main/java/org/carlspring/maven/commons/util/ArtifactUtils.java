@@ -25,14 +25,17 @@ import org.apache.maven.model.Dependency;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author mtodorov
  */
 public class ArtifactUtils
 {
+
+    private static final Pattern snapshotVersionPattern = Pattern.compile("(.*)-SNAPSHOT([-].*)?");
 
 
     public static boolean isMetadata(String path)
@@ -61,14 +64,7 @@ public class ArtifactUtils
         String[] groupIdElements = path.split("/");
         for (int i = 0; i < (groupIdElements.length - 3); i++)
         {
-            if (groupId.length() == 0)
-            {
-                groupId += groupIdElements[i];
-            }
-            else
-            {
-                groupId += "." + groupIdElements[i];
-            }
+            groupId += groupId.length() == 0 ? groupIdElements[i] : "." + groupIdElements[i];
         }
 
         String[] split = path.substring(path.lastIndexOf("/") + 1, path.length() - 4).split("-");
@@ -81,6 +77,7 @@ public class ArtifactUtils
             String token = split[i];
             try
             {
+                //noinspection ResultOfMethodCallIgnored
                 Integer.parseInt(token.substring(0, 1));
                 break;
             }
@@ -104,6 +101,7 @@ public class ArtifactUtils
         version = split[i];
 
         // If the version starts with a number, all is fine.
+        //noinspection ResultOfMethodCallIgnored
         Integer.parseInt(version.substring(0, 1));
 
         // TODO: Not checking for number format exception
@@ -141,7 +139,15 @@ public class ArtifactUtils
 
         path += artifact.getGroupId().replaceAll("\\.", "/") + "/";
         path += artifact.getArtifactId() + "/";
-        path += artifact.getVersion() + "/";
+        if (!artifact.getVersion().contains("SNAPSHOT"))
+        {
+            path += artifact.getVersion() + "/";
+        }
+        else
+        {
+            path += getSnapshotBaseVersion(artifact.getVersion()) + "/";
+        }
+
         path += artifact.getArtifactId() + "-";
         path += artifact.getVersion();
         path += artifact.getClassifier() != null &&
@@ -298,6 +304,13 @@ public class ArtifactUtils
     {
         Artifact artifact = getArtifactFromGAVTC(gav);
         return new File(getPathToArtifact(artifact, localRepository)).exists();
+    }
+
+    public static String getSnapshotBaseVersion(String version)
+    {
+        Matcher matcher = snapshotVersionPattern.matcher(version);
+
+        return matcher.find() ? matcher.group(1) + "-SNAPSHOT" : version;
     }
 
 }

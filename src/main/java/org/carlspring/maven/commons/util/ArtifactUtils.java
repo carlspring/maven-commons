@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 public class ArtifactUtils
 {
 
-    private static final Pattern snapshotVersionPattern = Pattern.compile("(.*)-SNAPSHOT([-].*)?");
+    private static final Pattern snapshotVersionPattern = Pattern.compile("((.*)-SNAPSHOT)([-].*)?");
 
 
     public static boolean isMetadata(String path)
@@ -306,11 +306,32 @@ public class ArtifactUtils
         return new File(getPathToArtifact(artifact, localRepository)).exists();
     }
 
+    public static boolean isSnapshotVersion(String version)
+    {
+        return version.matches("^(([0-9]+)(.([0-9]+))?)(((-(?i)snapshot)?((-([0-9]{8}(.([0-9]+)(-([0-9]+))?)?))?))?)$");
+    }
+
+    public static boolean isReleaseVersion(String version)
+    {
+        return !isSnapshotVersion(version);
+    }
+
     public static String getSnapshotBaseVersion(String version)
     {
-        Matcher matcher = snapshotVersionPattern.matcher(version);
+        Pattern test = Pattern.compile("^(([0-9]+)(.([0-9]+))*(.*)?)(-([0-9]{8})(.([0-9]+))?(-([0-9]+))?)$");
 
-        return matcher.find() ? matcher.group(1) + "-SNAPSHOT" : version;
+        Matcher matcher = test.matcher(version);
+
+
+        if(matcher.find())
+        {
+            System.out.println("\n\n Raw: "+version+"\n Version: "+matcher.group(1) + "\n Timestamp: " + matcher.group(7) + "\n Build: "+matcher.group(9) + "\n Buildr part 2: " + matcher.group(11));
+
+            return matcher.group(1) + "-SNAPSHOT"; // : version;
+        }
+
+        return version;
+
     }
 
 }

@@ -55,6 +55,38 @@ public class ArtifactUtilsTest
     }
 
     @Test
+    public void testSnapshots()
+    {
+
+        assertEquals("1.0-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-SNAPSHOT"));
+
+        assertTrue(ArtifactUtils.isSnapshotVersion("1.0-SNAPSHOT"));
+        assertTrue(ArtifactUtils.isSnapshotVersion("1.0-20131004.115330-1"));
+        assertTrue(ArtifactUtils.isSnapshotVersion("1.0-20131004"));
+        assertTrue(ArtifactUtils.isSnapshotVersion("1.0-20131004.115330"));
+
+        assertEquals("1.0-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-20131004.115330-1"));
+        assertEquals("1.0-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-20131004.115330"));
+        assertEquals("1.0-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-SNAPSHOT"));
+
+        assertEquals("1.0-alpha-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-alpha-20131004.115330-1"));
+        assertEquals("1.0-alpha-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-alpha-20131004.115330"));
+        assertEquals("1.0-alpha-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-alpha-SNAPSHOT"));
+
+        assertEquals("1.0-beta-1-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-beta-1-20131004.115330-1"));
+        assertEquals("1.0-beta-1-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-beta-1-20131004.115330"));
+        assertEquals("1.0-beta-1-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-beta-1-SNAPSHOT"));
+
+        assertEquals("1.0-rc2-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-rc2-20131004.115330-1"));
+        assertEquals("1.0-rc2-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-rc2-20131004.115330"));
+        assertEquals("1.0-rc2-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-rc2-SNAPSHOT"));
+
+        assertEquals("1.0-milestone-2-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-milestone-2-20131004.115330-1"));
+        assertEquals("1.0-milestone-2-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-milestone-2-20131004.115330"));
+        assertEquals("1.0-milestone-2-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-milestone-2-SNAPSHOT"));
+    }
+
+    @Test
     public void testConvertPathToArtifact()
     {
         Artifact artifact = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar");

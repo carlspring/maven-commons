@@ -60,10 +60,10 @@ public class ArtifactUtilsTest
 
         assertEquals("1.0-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-SNAPSHOT"));
 
-        assertTrue(ArtifactUtils.isSnapshotVersion("1.0-SNAPSHOT"));
-        assertTrue(ArtifactUtils.isSnapshotVersion("1.0-20131004.115330-1"));
-        assertTrue(ArtifactUtils.isSnapshotVersion("1.0-20131004"));
-        assertTrue(ArtifactUtils.isSnapshotVersion("1.0-20131004.115330"));
+        assertTrue(ArtifactUtils.isSnapshot("1.0-SNAPSHOT"));
+        assertTrue(ArtifactUtils.isSnapshot("1.0-20131004.115330-1"));
+        assertTrue(ArtifactUtils.isSnapshot("1.0-20131004"));
+        assertTrue(ArtifactUtils.isSnapshot("1.0-20131004.115330"));
 
         assertEquals("1.0-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-20131004.115330-1"));
         assertEquals("1.0-SNAPSHOT", ArtifactUtils.getSnapshotBaseVersion("1.0-20131004.115330"));

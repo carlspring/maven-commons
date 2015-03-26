@@ -35,8 +35,7 @@ import java.util.regex.Pattern;
 public class ArtifactUtils
 {
 
-    private static final Pattern snapshotVersionPattern = Pattern.compile("((.*)-SNAPSHOT)([-].*)?");
-
+    private static final Pattern versionPattern = Pattern.compile("^(?i)(\\d+((\\.\\d+)+)?)(((?!-\\d{8})-\\w+)*)?(-(\\d{8})((.|-)(\\d+)((.|-)(\\d+))?)?)?$");
 
     public static boolean isMetadata(String path)
     {
@@ -306,28 +305,49 @@ public class ArtifactUtils
         return new File(getPathToArtifact(artifact, localRepository)).exists();
     }
 
-    public static boolean isSnapshotVersion(String version)
+    public static boolean isSnapshot(String version)
     {
-        return version.matches("^(([0-9]+)(.([0-9]+))?)(((-(?i)snapshot)?((-([0-9]{8}(.([0-9]+)(-([0-9]+))?)?))?))?)$");
+
+        Matcher versionMatcher = versionPattern.matcher(version);
+
+        if (versionMatcher.find())
+        {
+            String middle = versionMatcher.group(4);
+            String timestamp = versionMatcher.group(7);
+
+            if ((!middle.isEmpty() && middle.matches("(?i)-snapshot")) || !timestamp.isEmpty())
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static boolean isReleaseVersion(String version)
     {
-        return !isSnapshotVersion(version);
+        return !isSnapshot(version);
     }
 
     public static String getSnapshotBaseVersion(String version)
     {
-        Pattern test = Pattern.compile("^(([0-9]+)(.([0-9]+))*(.*)?)(-([0-9]{8})(.([0-9]+))?(-([0-9]+))?)$");
+        Pattern pattern = Pattern.compile("^(\\d+((\\.\\d+)+)?)(((?!-\\d{8})-\\w+)*)?");
 
-        Matcher matcher = test.matcher(version);
+        Matcher matcher = pattern.matcher(version);
 
-
-        if(matcher.find())
+        if (matcher.find())
         {
-            System.out.println("\n\n Raw: "+version+"\n Version: "+matcher.group(1) + "\n Timestamp: " + matcher.group(7) + "\n Build: "+matcher.group(9) + "\n Buildr part 2: " + matcher.group(11));
+            String versionNumber = matcher.group(1);
+            String versionEnding = matcher.group(4);
 
-            return matcher.group(1) + "-SNAPSHOT"; // : version;
+            String baseVersion = versionNumber;
+
+            if (!versionEnding.isEmpty())
+            {
+                baseVersion += versionEnding.replaceAll("(?i)-snapshot", "");
+            }
+
+            return baseVersion + "-SNAPSHOT";
         }
 
         return version;

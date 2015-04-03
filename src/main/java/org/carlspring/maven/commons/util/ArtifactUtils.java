@@ -16,6 +16,7 @@ package org.carlspring.maven.commons.util;
  * limitations under the License.
  */
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
@@ -24,6 +25,7 @@ import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -36,6 +38,7 @@ public class ArtifactUtils
 {
 
     private static final Pattern versionPattern = Pattern.compile("^(?i)(\\d+((\\.\\d+)+)?)(((?!-\\d{8})-\\w+)*)?(-(\\d{8})((.|-)(\\d+)((.|-)(\\d+))?)?)?$");
+    private static final Pattern BASE_VERSION_PATTERN = Pattern.compile("^(\\d+((\\.\\d+)+)?)(((?!-\\d{8})-\\w+)*)?");
 
     public static boolean isMetadata(String path)
     {
@@ -55,9 +58,9 @@ public class ArtifactUtils
     public static Artifact convertPathToArtifact(String path)
     {
         String groupId = "";
-        String version;
+        String version = "";
         String scope = "compile";
-        String classifier = "";
+        StringBuilder classifier = new StringBuilder();
         String type = path.substring(path.lastIndexOf(".") + 1, path.length());
 
         String[] groupIdElements = path.split("/");
@@ -66,69 +69,56 @@ public class ArtifactUtils
             groupId += groupId.length() == 0 ? groupIdElements[i] : "." + groupIdElements[i];
         }
 
-        String[] split = path.substring(path.lastIndexOf("/") + 1, path.length() - 4).split("-");
+        String fileName = FilenameUtils.getBaseName(path);
 
-   		/* Parse the artifactId */
-        StringBuilder artifactId = new StringBuilder();
-        int i = 0;
-        for (; i < split.length; i++)
+        String versionPath = Paths.get(path).toFile().getParentFile().getName();
+        if (versionPath.toLowerCase().contains("snapshot"))
         {
-            String token = split[i];
-            try
-            {
-                //noinspection ResultOfMethodCallIgnored
-                Integer.parseInt(token.substring(0, 1));
-                break;
-            }
-            catch (NumberFormatException e)
-            {
-                // This is okay, as we still haven't reached the version.
-            }
-
-            if (artifactId.length() > 0)
-            {
-                artifactId.append("-");
-            }
-
-            artifactId.append(token);
+            versionPath = versionPath.replaceAll("(?i)-snapshot", "");
         }
 
-   		/* Parse the artifactId */
+        // Store version part 1
+        version = versionPath;
 
-   		/* Parse the version */
+        String artifactId = fileName.substring(0, fileName.indexOf(versionPath)-1);
 
-        version = split[i];
+        String split = fileName.substring((artifactId.length() + versionPath.length() + 1), fileName.length());
 
-        // If the version starts with a number, all is fine.
-        //noinspection ResultOfMethodCallIgnored
-        Integer.parseInt(version.substring(0, 1));
-
-        // TODO: Not checking for number format exception
-
-        i++;
-
-        // Check if the version is a SNAPSHOT and append it, if it is.
-        if ((i < split.length) && split[i].equals("SNAPSHOT"))
+        if (!split.isEmpty())
         {
-            version += "-" + split[i];
-            i++;
-        }
+            // remove leading dash
+            split = split.substring(1, split.length());
 
-   		/* Parse the version */
+            String[] tokens = split.split("-");
 
-   		/* Parse the classifier, if any */
-        if (i == (split.length - 1))
-        {
-            classifier = split[i];
+            for (String token : tokens)
+            {
+                String lowerToken = token.toLowerCase();
+                if (lowerToken.contains("snapshot"))
+                {
+                    version += "-SNAPSHOT";
+                }
+                else if (Character.isDigit(lowerToken.charAt(0)) && Character.isDigit(lowerToken.charAt(lowerToken.length() - 1)))
+                {
+                    version += "-" + token;
+                }
+                else
+                {
+                    if (classifier.length() > 0)
+                    {
+                        classifier.append("-");
+                    }
+                    classifier.append(token);
+                }
+            }
         }
-        /* Parse the classifier, if any */
 
         return new DefaultArtifact(groupId,
-                                   artifactId.toString(),
+                                   artifactId,
                                    VersionRange.createFromVersion(version),
                                    scope,
                                    type,
-                                   classifier,
+                                   classifier.toString(),
                                    new DefaultArtifactHandler(type));
     }
 
@@ -315,7 +305,7 @@ public class ArtifactUtils
             String middle = versionMatcher.group(4);
             String timestamp = versionMatcher.group(7);
 
-            if ((!middle.isEmpty() && middle.matches("(?i)-snapshot")) || !timestamp.isEmpty())
+            if ((middle != null && !middle.isEmpty() && middle.toLowerCase().contains("snapshot")) || (timestamp != null && !timestamp.isEmpty()))
             {
                 return true;
             }
@@ -331,9 +321,8 @@ public class ArtifactUtils
 
     public static String getSnapshotBaseVersion(String version)
     {
-        Pattern pattern = Pattern.compile("^(\\d+((\\.\\d+)+)?)(((?!-\\d{8})-\\w+)*)?");
 
-        Matcher matcher = pattern.matcher(version);
+        Matcher matcher = BASE_VERSION_PATTERN.matcher(version);
 
         if (matcher.find())
         {
@@ -342,7 +331,7 @@ public class ArtifactUtils
 
             String baseVersion = versionNumber;
 
-            if (!versionEnding.isEmpty())
+            if (versionEnding != null && !versionEnding.isEmpty())
             {
                 baseVersion += versionEnding.replaceAll("(?i)-snapshot", "");
             }

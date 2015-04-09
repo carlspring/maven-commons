@@ -128,7 +128,7 @@ public class ArtifactUtils
 
         path += artifact.getGroupId().replaceAll("\\.", "/") + "/";
         path += artifact.getArtifactId() + "/";
-        if (!artifact.getVersion().contains("SNAPSHOT"))
+        if (isReleaseVersion(artifact.getVersion()))
         {
             path += artifact.getVersion() + "/";
         }

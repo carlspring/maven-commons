@@ -219,6 +219,18 @@ public class ArtifactUtilsTest
     }
 
     @Test
+    public void testConvertArtifactToPath()
+    {
+        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:bar:1.2.3-20150409-125301-1:jar:javadoc");
+
+        String path = ArtifactUtils.convertArtifactToPath(artifact);
+
+        assertEquals("org/carlspring/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-20150409-125301-1-javadoc.jar", path);
+
+        System.out.println(artifact.toString() + " -> " + path);
+    }
+
+    @Test
     public void testGetArtifactFileName()
     {
         Artifact artifact = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar");

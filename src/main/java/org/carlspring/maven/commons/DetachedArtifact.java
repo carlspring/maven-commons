@@ -66,7 +66,6 @@ public class DetachedArtifact implements Artifact
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = VersionRange.createFromVersion(version);
-        this.type = type;
     }
 
     public DetachedArtifact(String groupId, String artifactId)

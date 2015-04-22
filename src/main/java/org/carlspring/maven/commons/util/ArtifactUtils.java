@@ -23,6 +23,7 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
+import org.carlspring.maven.commons.DetachedArtifact;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -58,68 +59,133 @@ public class ArtifactUtils
     public static Artifact convertPathToArtifact(String path)
     {
         String groupId = "";
-        String version = "";
-        String scope = "compile";
+        String artifactId = null;
+        String version = null;
         StringBuilder classifier = new StringBuilder();
-        String type = path.substring(path.lastIndexOf(".") + 1, path.length());
+        String type = null;
 
-        String[] groupIdElements = path.split("/");
-        for (int i = 0; i < (groupIdElements.length - 3); i++)
+        String[] pathElements = path.split("/");
+
+        if (pathIsCompleteGAV(path))
         {
-            groupId += groupId.length() == 0 ? groupIdElements[i] : "." + groupIdElements[i];
-        }
-
-        String fileName = FilenameUtils.getBaseName(path);
-
-        String versionPath = Paths.get(path).toFile().getParentFile().getName();
-        if (versionPath.toLowerCase().contains("snapshot"))
-        {
-            versionPath = versionPath.replaceAll("(?i)-snapshot", "");
-        }
-
-        // Store version part 1
-        version = versionPath;
-
-        String artifactId = fileName.substring(0, fileName.indexOf(versionPath)-1);
-
-        String split = fileName.substring((artifactId.length() + versionPath.length() + 1), fileName.length());
-
-        if (!split.isEmpty())
-        {
-            // remove leading dash
-            split = split.substring(1, split.length());
-
-            String[] tokens = split.split("-");
-
-            for (String token : tokens)
+            for (int i = 0; i < (pathElements.length - 3); i++)
             {
-                String lowerToken = token.toLowerCase();
-                if (lowerToken.contains("snapshot"))
+                groupId += groupId.length() == 0 ? pathElements[i] : "." + pathElements[i];
+            }
+
+            artifactId = pathElements[pathElements.length - 3];
+
+            String fileName = FilenameUtils.getBaseName(path);
+
+            String versionPath = Paths.get(path).toFile().getParentFile().getName();
+            if (versionPath.toLowerCase().contains("snapshot"))
+            {
+                versionPath = versionPath.replaceAll("(?i)-snapshot", "");
+            }
+
+            // Store version part 1
+            version = versionPath;
+
+            String split = fileName.substring((artifactId.length() + versionPath.length() + 1), fileName.length());
+
+            if (!split.isEmpty())
+            {
+                // remove leading dash
+                split = split.substring(1, split.length());
+
+                String[] tokens = split.split("-");
+
+                for (String token : tokens)
                 {
-                    version += "-SNAPSHOT";
+                    String lowerToken = token.toLowerCase();
+                    if (lowerToken.contains("snapshot"))
+                    {
+                        version += "-SNAPSHOT";
+                    }
+                    else if (Character.isDigit(lowerToken.charAt(0)) && Character.isDigit(lowerToken.charAt(lowerToken.length() - 1)))
+                    {
+                        version += "-" + token;
+                    }
+                    else
+                    {
+                        if (classifier.length() > 0)
+                        {
+                            classifier.append("-");
+                        }
+
+                        classifier.append(token);
+                    }
                 }
-                else if (Character.isDigit(lowerToken.charAt(0)) && Character.isDigit(lowerToken.charAt(lowerToken.length() - 1)))
+            }
+
+            type = path.substring(path.lastIndexOf(".") + 1, path.length());
+        }
+        else
+        {
+            if (pathElements.length >= 3)
+            {
+                String aId = pathElements[pathElements.length - 3];
+                String v = pathElements[pathElements.length - 2];
+                String fileName  = pathElements[pathElements.length - 1];
+
+                if (fileName.contains(aId) && fileName.contains(v))
                 {
-                    version += "-" + token;
+                    // There seems to be sufficient information from which to extract the artifactId
+                    artifactId = aId;
+                    version = v;
                 }
                 else
                 {
-                    if (classifier.length() > 0)
+                    // This is apparently just g:a
+                    groupId = "";
+                    for (int i = 0; i <= (pathElements.length - 2); i++)
                     {
-                        classifier.append("-");
+                        groupId += groupId.length() == 0 ? pathElements[i] : "." + pathElements[i];
                     }
-                    classifier.append(token);
+
+                    artifactId = pathElements[pathElements.length - 1];
                 }
+            }
+            else
+            {
+                groupId = pathElements[0];
+                artifactId = pathElements.length == 2 ?               // This is apparently just g:a
+                             pathElements[1] :
+                             null;                                    // There is insufficient information from which to extract the artifactId
             }
         }
 
-        return new DefaultArtifact(groupId,
-                                   artifactId,
-                                   VersionRange.createFromVersion(version),
-                                   scope,
-                                   type,
-                                   classifier.toString(),
-                                   new DefaultArtifactHandler(type));
+        return new DetachedArtifact(groupId,
+                                    artifactId,
+                                    version,
+                                    type,
+                                    (classifier.length() > 0 ? classifier.toString() : null));
+    }
+
+    public static boolean pathIsCompleteGAV(String path)
+    {
+        String[] pathElements = path.replaceAll("\\\\", "/").split("/");
+        if (pathElements.length >= 3)
+        {
+            String groupId = "";
+            for (int i = 0; i < (pathElements.length - 3); i++)
+            {
+                groupId += groupId.length() == 0 ? pathElements[i] : "." + pathElements[i];
+            }
+
+            String artifactId = pathElements[pathElements.length - 3];
+            String version = pathElements[pathElements.length - 2];
+            version = isSnapshot(version) ? getSnapshotBaseVersion(version, false) : version;
+
+            String fileName = pathElements[pathElements.length - 1];
+
+            if (fileName.startsWith(artifactId) && fileName.contains(version))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static String convertArtifactToPath(Artifact artifact)
@@ -127,23 +193,34 @@ public class ArtifactUtils
         String path = "";
 
         path += artifact.getGroupId().replaceAll("\\.", "/") + "/";
-        path += artifact.getArtifactId() + "/";
-        if (isReleaseVersion(artifact.getVersion()))
+        path += artifact.getArtifactId();
+
+        if (artifact.getVersion() != null)
         {
-            path += artifact.getVersion() + "/";
+            path += "/";
+
+            if (isReleaseVersion(artifact.getVersion()))
+            {
+                path += artifact.getVersion() + "/";
+            }
+            else
+            {
+                path += getSnapshotBaseVersion(artifact.getVersion()) + "/";
+            }
+
+            path += artifact.getArtifactId() + "-";
+            path += artifact.getVersion();
+            path += artifact.getClassifier() != null &&
+                    !artifact.getClassifier().equals("") &&
+                    !artifact.getClassifier().equals("null") ?
+                    "-" + artifact.getClassifier() : "";
+            path += artifact.getType() != null ? "." + artifact.getType() : "";
         }
         else
         {
-            path += getSnapshotBaseVersion(artifact.getVersion()) + "/";
+
         }
 
-        path += artifact.getArtifactId() + "-";
-        path += artifact.getVersion();
-        path += artifact.getClassifier() != null &&
-                !artifact.getClassifier().equals("") &&
-                !artifact.getClassifier().equals("null") ?
-                "-" + artifact.getClassifier() : "";
-        path += "." + artifact.getType();
 
         return path;
     }
@@ -232,17 +309,15 @@ public class ArtifactUtils
 
         String groupId = gavComponents[0];
         String artifactId = gavComponents[1];
-        String version = gavComponents[2];
+        String version = gavComponents.length >= 3 ? gavComponents[2] : null;
         String type = gavComponents.length < 4 ? "jar": gavComponents[3];
         String classifier = gavComponents.length < 5 ? null : gavComponents[4];
 
-        return new DefaultArtifact(groupId,
-                                   artifactId,
-                                   version,
-                                   "compile",
-                                   type,
-                                   classifier,
-                                   new DefaultArtifactHandler(type));
+        return new DetachedArtifact(groupId,
+                                    artifactId,
+                                    version,
+                                    type,
+                                    classifier);
     }
 
     /**
@@ -259,24 +334,15 @@ public class ArtifactUtils
         String artifactId = gavComponents[1];
         String version = gavComponents[2];
 
-        return new DefaultArtifact(groupId,
-                                   artifactId,
-                                   version,
-                                   "compile",
-                                   "pom",
-                                   null,
-                                   new DefaultArtifactHandler("pom"));
+        return new DetachedArtifact(groupId, artifactId, version, "pom");
     }
 
     public static Artifact getPOMArtifact(Artifact artifact)
     {
-        return new DefaultArtifact(artifact.getGroupId(),
-                                   artifact.getArtifactId(),
-                                   artifact.getVersion(),
-                                   "compile",
-                                   "pom",
-                                   null,
-                                   new DefaultArtifactHandler("pom"));
+        return new DetachedArtifact(artifact.getGroupId(),
+                                    artifact.getArtifactId(),
+                                    artifact.getVersion(),
+                                    "pom");
     }
 
     public static File getPOMFile(Artifact artifact, ArtifactRepository localRepository)
@@ -297,7 +363,6 @@ public class ArtifactUtils
 
     public static boolean isSnapshot(String version)
     {
-
         Matcher versionMatcher = versionPattern.matcher(version);
 
         if (versionMatcher.find())
@@ -321,7 +386,11 @@ public class ArtifactUtils
 
     public static String getSnapshotBaseVersion(String version)
     {
+        return getSnapshotBaseVersion(version, true);
+    }
 
+    public static String getSnapshotBaseVersion(String version, boolean appendSnapshotSuffix)
+    {
         Matcher matcher = BASE_VERSION_PATTERN.matcher(version);
 
         if (matcher.find())
@@ -336,11 +405,10 @@ public class ArtifactUtils
                 baseVersion += versionEnding.replaceAll("(?i)-snapshot", "");
             }
 
-            return baseVersion + "-SNAPSHOT";
+            return appendSnapshotSuffix ? baseVersion + "-SNAPSHOT" : baseVersion;
         }
 
         return version;
-
     }
 
 }

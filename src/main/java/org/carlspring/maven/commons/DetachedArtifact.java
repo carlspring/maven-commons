@@ -48,7 +48,7 @@ public class DetachedArtifact implements Artifact
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
-        this.version = VersionRange.createFromVersion(version);
+        this.version = version != null ? VersionRange.createFromVersion(version) : null;
         this.type = type;
         this.classifier = classifier;
     }
@@ -57,7 +57,7 @@ public class DetachedArtifact implements Artifact
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
-        this.version = VersionRange.createFromVersion(version);
+        this.version = version != null ? VersionRange.createFromVersion(version) : null;
         this.type = type;
     }
 
@@ -65,18 +65,13 @@ public class DetachedArtifact implements Artifact
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
-        this.version = VersionRange.createFromVersion(version);
+        this.version = version != null ? VersionRange.createFromVersion(version) : null;
     }
 
     public DetachedArtifact(String groupId, String artifactId)
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
-    }
-
-    public DetachedArtifact(String gatvc)
-    {
-        this.groupId = groupId;
     }
 
     @Override
@@ -94,7 +89,7 @@ public class DetachedArtifact implements Artifact
     @Override
     public String getVersion()
     {
-        return version.toString();
+        return version != null ? version.toString() : null;
     }
 
     @Override
@@ -356,6 +351,16 @@ public class DetachedArtifact implements Artifact
     public int compareTo(Artifact o)
     {
         return 0;
+    }
+
+    @Override
+    public String toString()
+    {
+        return groupId + ':' +
+               (artifactId != null ? artifactId : "") + ':' +
+               (version != null ? version : "") + ':' +
+               (type != null ? type : "") +
+               (classifier != null ? ':' + classifier : "");
     }
 
 }

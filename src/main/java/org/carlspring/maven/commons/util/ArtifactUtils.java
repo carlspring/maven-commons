@@ -40,6 +40,7 @@ public class ArtifactUtils
 
     private static final Pattern versionPattern = Pattern.compile("^(?i)(\\d+((\\.\\d+)+)?)(((?!-\\d{8})-\\w+)*)?(-(\\d{8})((.|-)(\\d+)((.|-)(\\d+))?)?)?$");
     private static final Pattern BASE_VERSION_PATTERN = Pattern.compile("^(\\d+((\\.\\d+)+)?)(((?!-\\d{8})-\\w+)*)?");
+    private static final Pattern TIMESTAMP_BUILDNUMBER_PATTERN = Pattern.compile("((\\d{8})(.|-)(\\d+))((.|-)(\\d+))?$");
 
     public static boolean isMetadata(String path)
     {
@@ -409,6 +410,42 @@ public class ArtifactUtils
         }
 
         return version;
+    }
+
+    public static String getSnapshotTimestamp(String version)
+    {
+        String timestamp = null;
+
+        if(isSnapshot(version))
+        {
+            Matcher snapshotMatcher = TIMESTAMP_BUILDNUMBER_PATTERN.matcher(version);
+
+            if (snapshotMatcher.find())
+            {
+                timestamp = snapshotMatcher.group(1);
+            }
+
+        }
+
+        return timestamp;
+    }
+
+    public static String getSnapshotBuildNumber(String version)
+    {
+        String buildNumber = null;
+
+        if(isSnapshot(version))
+        {
+            Matcher snapshotMatcher = TIMESTAMP_BUILDNUMBER_PATTERN.matcher(version);
+
+            if (snapshotMatcher.find())
+            {
+                buildNumber = snapshotMatcher.group(7);
+            }
+
+        }
+
+        return buildNumber;
     }
 
 }

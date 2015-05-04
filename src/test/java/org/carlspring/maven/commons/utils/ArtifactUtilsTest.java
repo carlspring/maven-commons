@@ -407,4 +407,18 @@ public class ArtifactUtilsTest
 
     }
 
+    @Test
+    public void testGetSnapshotTimestamp()
+    {
+        assertEquals("20131004.115330", ArtifactUtils.getSnapshotTimestamp("1.0-20131004.115330-15"));
+        assertEquals("20131004.115330", ArtifactUtils.getSnapshotTimestamp("1.0-alpha2-20131004.115330-15"));
+    }
+
+    @Test
+    public void testGetSnapshotBuildNumber()
+    {
+        assertEquals("15", ArtifactUtils.getSnapshotBuildNumber("1.0-20131004.115330-15"));
+        assertEquals("15", ArtifactUtils.getSnapshotBuildNumber("1.0-alpha2-20131004.115330-15"));
+    }
+
 }

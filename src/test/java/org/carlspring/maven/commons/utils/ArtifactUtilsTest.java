@@ -256,7 +256,8 @@ public class ArtifactUtilsTest
     @Test
     public void testConvertArtifactToPath()
     {
-        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:bar:1.2.3-20150409-125301-1:jar:javadoc");
+        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(
+                "org.carlspring.foo:bar:1.2.3-20150409-125301-1:jar:javadoc");
 
         String path = ArtifactUtils.convertArtifactToPath(artifact);
 
@@ -312,8 +313,7 @@ public class ArtifactUtilsTest
                               snapshotVersion + "/" +
                               "foo-" + timestampedSnapshotVersion + "-jdk15.jar";
 
-        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(
-                "org.carlspring.maven:foo:" + timestampedSnapshotVersion + ":jar:jdk15");
+        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.maven:foo:" + timestampedSnapshotVersion + ":jar:jdk15");
         String path = ArtifactUtils.convertArtifactToPath(artifact);
 
         assertEquals("Failed to properly convert the artifact to a path!", expectedPath, path);
@@ -394,17 +394,38 @@ public class ArtifactUtilsTest
         assertTrue(ArtifactUtils.pathIsCompleteGAV("com/foo/bar/1.2.3/bar-1.2.3-javadoc.jar"));
         assertTrue(ArtifactUtils.pathIsCompleteGAV("com/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-20150421.050922-1.jar"));
         assertTrue(ArtifactUtils.pathIsCompleteGAV("com/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-20150421.050922-1-javadoc.jar"));
-        assertTrue(ArtifactUtils.pathIsCompleteGAV(
-                "com/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-20150421.050922-1-some-complex-classifier.jar"));
+        assertTrue(ArtifactUtils.pathIsCompleteGAV("com/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-20150421.050922-1-some-complex-classifier.jar"));
 
         assertFalse(ArtifactUtils.pathIsCompleteGAV("com/foo/bar"));
         assertFalse(ArtifactUtils.pathIsCompleteGAV("com/bar"));
-    }
 
-    @Test
-    public void testGetGroupIdFromPath()
-    {
+        Artifact artifact1 = ArtifactUtils.convertPathToArtifact("com/foo/bar");
+        assertEquals("com.foo", artifact1.getGroupId());
+        assertEquals("bar", artifact1.getArtifactId());
 
+        Artifact artifact2 = ArtifactUtils.convertPathToArtifact("com/foo");
+        assertEquals("com", artifact2.getGroupId());
+        assertEquals("foo", artifact2.getArtifactId());
+
+        Artifact artifact3 = ArtifactUtils.convertPathToArtifact("com/foo/bar/blah");
+        assertEquals("com.foo.bar", artifact3.getGroupId());
+        assertEquals("blah", artifact3.getArtifactId());
+
+        Artifact artifact4 = ArtifactUtils.convertPathToArtifact("com/foo/bar/yadee-yadda");
+        assertEquals("com.foo.bar", artifact4.getGroupId());
+        assertEquals("yadee-yadda", artifact4.getArtifactId());
+
+        // Test the case where the matching logic breaks if it finds a String which repeats near the end of the path assuming its a version.
+        // In this case it was incorrectly assuming "metadata" is the version (due to the repetition)
+        // and therefore screwing up the GAV components by setting them to "org.carlspring:strongbox:metadata".
+        Artifact artifact5 = ArtifactUtils.convertPathToArtifact("org/carlspring/strongbox/metadata/strongbox-metadata");
+        assertEquals("org.carlspring.strongbox.metadata", artifact5.getGroupId());
+        assertEquals("strongbox-metadata", artifact5.getArtifactId());
+
+        Artifact artifact6 = ArtifactUtils.convertPathToArtifact("org/carlspring/strongbox/metadata/strongbox-metadata/6.0/strongbox-metadata-6.0.jar");
+        assertEquals("org.carlspring.strongbox.metadata", artifact6.getGroupId());
+        assertEquals("strongbox-metadata", artifact6.getArtifactId());
+        assertEquals("6.0", artifact6.getVersion());
     }
 
     @Test

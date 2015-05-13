@@ -129,7 +129,11 @@ public class ArtifactUtils
                 String v = pathElements[pathElements.length - 2];
                 String fileName  = pathElements[pathElements.length - 1];
 
-                if (fileName.contains(aId) && fileName.contains(v))
+                // @steve-todorov: This is how black magic happens.
+                // If there is no dot in the file name, then there is apparently no version data.
+                // 1) Because versions normally contain at least one dot
+                // 2) Because artifact files will have some sort of extension
+                if (fileName.contains(aId) && fileName.contains(v) && fileName.contains("."))
                 {
                     // There seems to be sufficient information from which to extract the artifactId
                     artifactId = aId;
@@ -180,7 +184,7 @@ public class ArtifactUtils
 
             String fileName = pathElements[pathElements.length - 1];
 
-            if (fileName.startsWith(artifactId) && fileName.contains(version))
+            if (fileName.startsWith(artifactId) && fileName.contains(version) && fileName.contains("."))
             {
                 return true;
             }

@@ -442,4 +442,40 @@ public class ArtifactUtilsTest
         assertEquals("15", ArtifactUtils.getSnapshotBuildNumber("1.0-alpha2-20131004.115330-15"));
     }
 
+    @Test
+    public void testGetGroupLevelMetadataPath() throws Exception
+    {
+        // com/foo/bar/1.2.3/bar-1.2.3.jar --> com/foo/bar/
+        Artifact artifact = ArtifactUtils.convertPathToArtifact("com/foo/bar/1.2.3/bar-1.2.3.jar");
+        String groupLevelMetadataPath = ArtifactUtils.getGroupLevelMetadataPath(artifact);
+
+        assertEquals("Failed to get the path the group level metadata",
+                     "com/foo/maven-metadata.xml",
+                     groupLevelMetadataPath);
+    }
+
+    @Test
+    public void testGetArtifactLevelMetadataPath() throws Exception
+    {
+        // com/foo/bar/1.2.3/bar-1.2.3.jar --> com/foo/bar/
+        Artifact artifact = ArtifactUtils.convertPathToArtifact("com/foo/bar/1.2.3/bar-1.2.3.jar");
+        String groupLevelMetadataPath = ArtifactUtils.getArtifactLevelMetadataPath(artifact);
+
+        assertEquals("Failed to get the path the group level metadata",
+                     "com/foo/bar/maven-metadata.xml",
+                     groupLevelMetadataPath);
+    }
+
+    @Test
+    public void testGetVersionLevelMetadataPath() throws Exception
+    {
+        // com/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-SNAPSHOT.jar --> com/foo/bar/1.2.3-SNAPSHOT
+        Artifact artifact = ArtifactUtils.convertPathToArtifact("com/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-SNAPSHOT.jar");
+        String groupLevelMetadataPath = ArtifactUtils.getVersionLevelMetadataPath(artifact);
+
+        assertEquals("Failed to get the path the group level metadata",
+                     "com/foo/bar/1.2.3-SNAPSHOT/maven-metadata.xml",
+                     groupLevelMetadataPath);
+    }
+
 }

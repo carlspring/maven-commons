@@ -23,6 +23,7 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.maven.commons.DetachedArtifact;
 
 import java.io.File;
@@ -219,7 +220,15 @@ public class ArtifactUtils
                     !artifact.getClassifier().equals("") &&
                     !artifact.getClassifier().equals("null") ?
                     "-" + artifact.getClassifier() : "";
-            path += artifact.getType() != null ? "." + artifact.getType() : "";
+                    
+            if (artifact instanceof PluginArtifact)
+            {
+                path += ".jar";
+            }
+            else
+            {
+                path += artifact.getType() != null ? "." + artifact.getType() : ".jar";
+            }
         }
         else
         {
@@ -240,7 +249,14 @@ public class ArtifactUtils
                 !artifact.getClassifier().equals("") &&
                 !artifact.getClassifier().equals("null") ?
                 "-" + artifact.getClassifier() : "";
-        path += "." + artifact.getType();
+        if (artifact instanceof PluginArtifact)
+        {
+            path += ".jar";
+        }
+        else
+        {
+            path += artifact.getType() != null ? "." + artifact.getType() : ".jar";
+        }
 
         return path;
     }

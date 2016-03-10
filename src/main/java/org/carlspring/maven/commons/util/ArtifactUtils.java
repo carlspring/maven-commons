@@ -227,7 +227,7 @@ public class ArtifactUtils
             }
             else
             {
-                path += artifact.getType() != null ? "." + artifact.getType() : "";
+                path += artifact.getType() != null ? "." + artifact.getType() : ".jar";
             }
         }
         else
@@ -255,7 +255,7 @@ public class ArtifactUtils
         }
         else
         {
-            path += artifact.getType() != null ? "." + artifact.getType() : "";
+            path += artifact.getType() != null ? "." + artifact.getType() : ".jar";
         }
 
         return path;

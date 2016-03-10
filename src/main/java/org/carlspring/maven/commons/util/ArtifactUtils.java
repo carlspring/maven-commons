@@ -219,7 +219,21 @@ public class ArtifactUtils
                     !artifact.getClassifier().equals("") &&
                     !artifact.getClassifier().equals("null") ?
                     "-" + artifact.getClassifier() : "";
-            path += artifact.getType() != null ? "." + artifact.getType() : "";
+                    
+            String type = null;
+            if (artifact.getType() != null)
+            {
+                if ("maven-plugin".equals(artifact.getType()))
+                {
+                    type = artifact.getType() + ".jar";
+                }
+                else 
+                {
+                    type = artifact.getType();
+                }
+            }
+            
+            path += artifact.getType() != null ? "." + type : "";
         }
         else
         {

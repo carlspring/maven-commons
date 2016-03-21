@@ -66,7 +66,7 @@ public class ArtifactUtils
         StringBuilder classifier = new StringBuilder();
         String type = null;
 
-        String[] pathElements = path.split("/");
+        String[] pathElements = path.split("/|\\\\");
 
         if (pathIsCompleteGAV(path))
         {

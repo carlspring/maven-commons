@@ -382,7 +382,9 @@ public class ArtifactUtilsTest
         final String pathToArtifact = ArtifactUtils.getPathToArtifact(artifact, "/path/to/repository");
 
         assertNotNull("Failed to resolve path to artifact!", pathToArtifact);
-        assertEquals("Failed to resolve path to artifact!", "/path/to/repository/bar-1.0.jar", pathToArtifact);
+        assertTrue("Failed to resolve path to artifact!",
+                   pathToArtifact.equals("/path/to/repository/bar-1.0.jar") ||
+                   pathToArtifact.endsWith("path\\to\\repository\\bar-1.0.jar"));
 
         System.out.println(artifact);
     }

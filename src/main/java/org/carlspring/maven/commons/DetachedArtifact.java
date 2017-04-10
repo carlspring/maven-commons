@@ -81,9 +81,21 @@ public class DetachedArtifact implements Artifact
     }
 
     @Override
+    public void setGroupId(String groupId)
+    {
+        this.groupId = groupId;
+    }
+
+    @Override
     public String getArtifactId()
     {
         return artifactId;
+    }
+
+    @Override
+    public void setArtifactId(String artifactId)
+    {
+        this.artifactId = artifactId;
     }
 
     @Override
@@ -101,13 +113,24 @@ public class DetachedArtifact implements Artifact
     @Override
     public String getScope()
     {
-        return null;
+        return scope;
+    }
+
+    @Override
+    public void setScope(String scope)
+    {
+        this.scope = scope;
     }
 
     @Override
     public String getType()
     {
         return type;
+    }
+
+    public void setType(String type)
+    {
+        this.type = type;
     }
 
     @Override
@@ -231,12 +254,6 @@ public class DetachedArtifact implements Artifact
     }
 
     @Override
-    public void setScope(String scope)
-    {
-        this.scope = scope;
-    }
-
-    @Override
     public VersionRange getVersionRange()
     {
         return null;
@@ -252,18 +269,6 @@ public class DetachedArtifact implements Artifact
     public void selectVersion(String s)
     {
 
-    }
-
-    @Override
-    public void setGroupId(String groupId)
-    {
-        this.groupId = groupId;
-    }
-
-    @Override
-    public void setArtifactId(String artifactId)
-    {
-        this.artifactId = artifactId;
     }
 
     @Override

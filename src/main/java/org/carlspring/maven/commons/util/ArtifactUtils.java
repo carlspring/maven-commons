@@ -43,6 +43,12 @@ public class ArtifactUtils
     private static final Pattern BASE_VERSION_PATTERN = Pattern.compile("^(\\d+((\\.\\d+)+)?)(((?!-\\d{8})-\\w+)*)?");
     private static final Pattern TIMESTAMP_BUILDNUMBER_PATTERN = Pattern.compile("((\\d{8})(.|-)(\\d+))((.|-)(\\d+))?$");
 
+
+    public static boolean isPom(String path)
+    {
+        return path.endsWith(".pom");
+    }
+
     public static boolean isMetadata(String path)
     {
         return path.endsWith(".pom") || path.endsWith(".xml");

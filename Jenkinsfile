@@ -67,6 +67,7 @@ pipeline {
                             }
                         }
                     }
+                }
             }
         }
         stage('Deploy') {

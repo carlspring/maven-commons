@@ -5,7 +5,7 @@ import org.carlspring.maven.commons.util.GAVUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;

@@ -1,14 +1,14 @@
 package org.carlspring.maven.commons.io.filters;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 /**
  * @author mtodorov
@@ -24,7 +24,7 @@ public class DirectoryFilterTest
 
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    @Before
+    @BeforeEach
     public void setUp()
             throws Exception
     {

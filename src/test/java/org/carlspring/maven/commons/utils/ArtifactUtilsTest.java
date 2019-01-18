@@ -1,12 +1,12 @@
 package org.carlspring.maven.commons.utils;
 
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.junit.Test;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import org.apache.maven.artifact.Artifact;
+import org.junit.jupiter.api.Test;
 import static junit.framework.Assert.*;
 
 /**

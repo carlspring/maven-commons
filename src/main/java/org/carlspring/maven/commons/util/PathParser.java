@@ -3,6 +3,7 @@ package org.carlspring.maven.commons.util;
 import org.carlspring.maven.commons.DetachedArtifact;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 public class PathParser
 {
+
+    private final static Pattern VERSION_PATTERN = Pattern.compile(".*(\\d+\\.\\d+).*");
 
     private final static Logger logger = LoggerFactory.getLogger(PathParser.class);
 
@@ -88,7 +91,7 @@ public class PathParser
             // Character.isDigit is meant to handle corner cases such as "org/carlspring/strongbox/metadata/strongbox-metadata"
             if (StringUtils.endsWithIgnoreCase(version, "-snapshot") ||
                 (StringUtils.containsIgnoreCase(filename, versionStripped) &&
-                 Character.isDigit(versionStripped.charAt(0)))
+                 VERSION_PATTERN.matcher(version).matches())
             )
             {
                 groupId = segments.get(0);
@@ -118,7 +121,7 @@ public class PathParser
             {
                 // Maybe the path ends with the version?
                 version = segments.get(segments.size() - 1);
-                if (Character.isDigit(version.charAt(0)))
+                if (VERSION_PATTERN.matcher(version).matches())
                 {
                     groupId = segments.stream()
                                       .limit(segments.size() - 2)

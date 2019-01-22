@@ -57,7 +57,6 @@ public class ArtifactUtilsTest
     @Test
     public void testSnapshots()
     {
-
         assertFalse(ArtifactUtils.isSnapshot("1.0"));
         assertFalse(ArtifactUtils.isSnapshot("1.0.10"));
         assertFalse(ArtifactUtils.isSnapshot("1.0.10-alpha-3"));
@@ -97,173 +96,248 @@ public class ArtifactUtilsTest
     @Test
     public void testConvertPathToArtifact()
     {
-        Artifact artifact1 = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT.jar");
-
-        System.out.println(artifact1.toString());
+        Artifact artifact1 = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo/10.0-SNAPSHOT/foo-10.0-SNAPSHOT.jar");
 
         assertNotNull("Failed to covert path to artifact!", artifact1);
-        assertNotNull("Failed to covert path to artifact!", artifact1.getGroupId());
-        assertNotNull("Failed to covert path to artifact!", artifact1.getArtifactId());
-        assertNotNull("Failed to covert path to artifact!", artifact1.getVersion());
-        assertNotNull("Failed to covert path to artifact!", artifact1.getType());
-
         assertEquals("Failed to convert path to artifact!", "org.carlspring.maven", artifact1.getGroupId());
         assertEquals("Failed to convert path to artifact!", "foo", artifact1.getArtifactId());
-        assertEquals("Failed to convert path to artifact!", "1.0-SNAPSHOT", artifact1.getVersion());
+        assertEquals("Failed to convert path to artifact!", "10.0-SNAPSHOT", artifact1.getVersion());
         assertNull("Failed to convert path to artifact!", artifact1.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "jar", artifact1.getType());
 
         Artifact artifact2 = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo/1.0-SNAPSHOT/foo-1.0-SNAPSHOT-jdk15.jar");
 
-        System.out.println(artifact2.toString());
-
         assertNotNull("Failed to covert path to artifact!", artifact2);
-        assertNotNull("Failed to covert path to artifact!", artifact2.getGroupId());
-        assertNotNull("Failed to covert path to artifact!", artifact2.getArtifactId());
-        assertNotNull("Failed to covert path to artifact!", artifact2.getVersion());
-        assertNotNull("Failed to covert path to artifact!", artifact2.getType());
         assertEquals("Failed to convert path to artifact!", "org.carlspring.maven", artifact2.getGroupId());
         assertEquals("Failed to convert path to artifact!", "foo", artifact2.getArtifactId());
         assertEquals("Failed to convert path to artifact!", "1.0-SNAPSHOT", artifact2.getVersion());
         assertEquals("Failed to convert path to artifact!", "jdk15", artifact2.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "jar", artifact2.getType());
 
         Artifact artifact3 = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo-bar/1.0-SNAPSHOT/foo-bar-1.0-20131004.115330.jar");
 
-        System.out.println(artifact3.toString());
-
         assertNotNull("Failed to covert path to artifact!", artifact3);
-        assertNotNull("Failed to covert path to artifact!", artifact3.getGroupId());
-        assertNotNull("Failed to covert path to artifact!", artifact3.getArtifactId());
-        assertNotNull("Failed to covert path to artifact!", artifact3.getVersion());
-        assertNotNull("Failed to covert path to artifact!", artifact3.getType());
         assertEquals("Failed to convert path to artifact!", "org.carlspring.maven", artifact3.getGroupId());
         assertEquals("Failed to convert path to artifact!", "foo-bar", artifact3.getArtifactId());
         assertEquals("Failed to convert path to artifact!", "1.0-20131004.115330", artifact3.getVersion());
         assertNull("Failed to convert path to artifact!", artifact3.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "jar", artifact3.getType());
 
         Artifact artifact4 = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo-bar-bar/1.0-SNAPSHOT/foo-bar-bar-1.0-20131004.115330-1.jar");
 
-        System.out.println(artifact4.toString());
-
         assertNotNull("Failed to covert path to artifact!", artifact4);
-        assertNotNull("Failed to covert path to artifact!", artifact4.getGroupId());
-        assertNotNull("Failed to covert path to artifact!", artifact4.getArtifactId());
-        assertNotNull("Failed to covert path to artifact!", artifact4.getVersion());
-        assertNotNull("Failed to covert path to artifact!", artifact4.getType());
-
         assertEquals("Failed to convert path to artifact!", "org.carlspring.maven", artifact4.getGroupId());
         assertEquals("Failed to convert path to artifact!", "foo-bar-bar", artifact4.getArtifactId());
         assertEquals("Failed to convert path to artifact!", "1.0-20131004.115330-1", artifact4.getVersion());
         assertNull("Failed to convert path to artifact!", artifact4.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "jar", artifact4.getType());
 
         Artifact artifact5 = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo/1.0-alpha-SNAPSHOT/foo-1.0-alpha-20131004.115330-1.jar");
 
-        System.out.println(artifact5.toString());
-
         assertNotNull("Failed to covert path to artifact!", artifact5);
-        assertNotNull("Failed to covert path to artifact!", artifact5.getGroupId());
-        assertNotNull("Failed to covert path to artifact!", artifact5.getArtifactId());
-        assertNotNull("Failed to covert path to artifact!", artifact5.getVersion());
-        assertNotNull("Failed to covert path to artifact!", artifact5.getType());
         assertEquals("Failed to convert path to artifact!", "org.carlspring.maven", artifact5.getGroupId());
         assertEquals("Failed to convert path to artifact!", "foo", artifact5.getArtifactId());
         assertEquals("Failed to convert path to artifact!", "1.0-alpha-20131004.115330-1", artifact5.getVersion());
         assertNull("Failed to convert path to artifact!", artifact5.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "jar", artifact5.getType());
 
         Artifact artifact6 = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo-bar/1.0-alpha-SNAPSHOT/foo-bar-1.0-alpha-20131004.115330-1-javadoc.jar");
 
-        System.out.println(artifact6.toString());
-
         assertNotNull("Failed to covert path to artifact!", artifact6);
-        assertNotNull("Failed to covert path to artifact!", artifact6.getGroupId());
-        assertNotNull("Failed to covert path to artifact!", artifact6.getArtifactId());
-        assertNotNull("Failed to covert path to artifact!", artifact6.getVersion());
-        assertNotNull("Failed to covert path to artifact!", artifact6.getType());
-
         assertEquals("Failed to convert path to artifact!", "org.carlspring.maven", artifact6.getGroupId());
         assertEquals("Failed to convert path to artifact!", "foo-bar", artifact6.getArtifactId());
         assertEquals("Failed to convert path to artifact!", "1.0-alpha-20131004.115330-1", artifact6.getVersion());
         assertEquals("Failed to convert path to artifact!", "javadoc", artifact6.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "jar", artifact6.getType());
 
         Artifact artifact7 = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo/1.0-alpha-SNAPSHOT/foo-1.0-alpha-20131004.115330-1-custom-classifier-type.jar");
 
-        System.out.println(artifact7.toString());
-
         assertNotNull("Failed to covert path to artifact!", artifact7);
-        assertNotNull("Failed to covert path to artifact!", artifact7.getGroupId());
-        assertNotNull("Failed to covert path to artifact!", artifact7.getArtifactId());
-        assertNotNull("Failed to covert path to artifact!", artifact7.getVersion());
-        assertNotNull("Failed to covert path to artifact!", artifact7.getType());
-
         assertEquals("Failed to convert path to artifact!", "org.carlspring.maven", artifact7.getGroupId());
         assertEquals("Failed to convert path to artifact!", "foo", artifact7.getArtifactId());
         assertEquals("Failed to convert path to artifact!", "1.0-alpha-20131004.115330-1", artifact7.getVersion());
         assertEquals("Failed to convert path to artifact!", "custom-classifier-type", artifact7.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "jar", artifact7.getType());
 
-        Artifact artifact8 = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo/1.0.1/foo-1.0.1-custom-classifier-type.jar");
-
-        System.out.println(artifact8.toString());
+        Artifact artifact8 = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo/123.0.1/foo-123.0.1-custom-classifier-type.jar");
 
         assertNotNull("Failed to covert path to artifact!", artifact8);
-        assertNotNull("Failed to covert path to artifact!", artifact8.getGroupId());
-        assertNotNull("Failed to covert path to artifact!", artifact8.getArtifactId());
-        assertNotNull("Failed to covert path to artifact!", artifact8.getVersion());
-        assertNotNull("Failed to covert path to artifact!", artifact8.getType());
-
         assertEquals("Failed to convert path to artifact!", "org.carlspring.maven", artifact8.getGroupId());
         assertEquals("Failed to convert path to artifact!", "foo", artifact8.getArtifactId());
-        assertEquals("Failed to convert path to artifact!", "1.0.1", artifact8.getVersion());
+        assertEquals("Failed to convert path to artifact!", "123.0.1", artifact8.getVersion());
         assertEquals("Failed to convert path to artifact!", "custom-classifier-type", artifact8.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "jar", artifact8.getType());
 
         Artifact artifact9 = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo/1.0.2-alpha/foo-1.0.2-alpha-custom-classifier-type.jar");
 
-        System.out.println(artifact9.toString());
-
         assertNotNull("Failed to covert path to artifact!", artifact9);
-        assertNotNull("Failed to covert path to artifact!", artifact9.getGroupId());
-        assertNotNull("Failed to covert path to artifact!", artifact9.getArtifactId());
-        assertNotNull("Failed to covert path to artifact!", artifact9.getVersion());
-        assertNotNull("Failed to covert path to artifact!", artifact9.getType());
         assertEquals("Failed to convert path to artifact!", "org.carlspring.maven", artifact9.getGroupId());
         assertEquals("Failed to convert path to artifact!", "foo", artifact9.getArtifactId());
         assertEquals("Failed to convert path to artifact!", "1.0.2-alpha", artifact9.getVersion());
         assertEquals("Failed to convert path to artifact!", "custom-classifier-type", artifact9.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "jar", artifact9.getType());
 
         Artifact artifact10 = ArtifactUtils.convertPathToArtifact("org/carlspring/maven/foo");
 
-        System.out.println(artifact10.toString());
-
         assertNotNull("Failed to covert path to artifact!", artifact10);
-        assertNotNull("Failed to covert path to artifact!", artifact10.getGroupId());
-        assertNotNull("Failed to covert path to artifact!", artifact10.getArtifactId());
-        assertNull("Failed to covert path to artifact!", artifact10.getVersion());
-        assertNull("Failed to covert path to artifact!", artifact10.getType());
         assertEquals("Failed to convert path to artifact!", "org.carlspring.maven", artifact10.getGroupId());
         assertEquals("Failed to convert path to artifact!", "foo", artifact10.getArtifactId());
+        assertNull("Failed to covert path to artifact!", artifact10.getVersion());
+        assertNotNull("Failed to convert path to artifact!", artifact9.getClassifier());
+        assertNull("Failed to covert path to artifact!", artifact10.getType());
 
         Artifact artifact11 = ArtifactUtils.convertPathToArtifact("org/foo");
 
-        System.out.println(artifact11.toString());
-
         assertNotNull("Failed to covert path to artifact!", artifact11);
-        assertNotNull("Failed to covert path to artifact!", artifact11.getGroupId());
-        assertNotNull("Failed to covert path to artifact!", artifact11.getArtifactId());
-        assertNull("Failed to covert path to artifact!", artifact11.getVersion());
-        assertNull("Failed to covert path to artifact!", artifact11.getType());
         assertEquals("Failed to convert path to artifact!", "org", artifact11.getGroupId());
         assertEquals("Failed to convert path to artifact!", "foo", artifact11.getArtifactId());
+        assertNull("Failed to covert path to artifact!", artifact11.getVersion());
+        assertNull("Failed to covert path to artifact!", artifact11.getClassifier());
+        assertNull("Failed to covert path to artifact!", artifact11.getType());
+
+        Artifact artifact12 = ArtifactUtils.convertPathToArtifact("org/carlspring/strongbox/strongbox-db-snapshot/1.0-SNAPSHOT/strongbox-db-snapshot-1.0-20190114.230421-23-db-snapshot.tar.gz");
+
+        assertNotNull("Failed to covert path to artifact!", artifact12);
+        assertEquals("Failed to covert path to artifact!", "org.carlspring.strongbox", artifact12.getGroupId());
+        assertEquals("Failed to covert path to artifact!", "strongbox-db-snapshot", artifact12.getArtifactId());
+        assertEquals("Failed to covert path to artifact!", "1.0-20190114.230421-23", artifact12.getVersion());
+        assertEquals("Failed to covert path to artifact!", "db-snapshot", artifact12.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "tar.gz", artifact12.getType());
+
+        Artifact artifact13 = ArtifactUtils.convertPathToArtifact("org/springframework/boot/spring-boot-dependencies/2.0.6.RELEASE/spring-boot-dependencies-2.0.6.RELEASE.pom");
+
+        assertNotNull("Failed to covert path to artifact!", artifact13);
+        assertEquals("Failed to covert path to artifact!", "org.springframework.boot", artifact13.getGroupId());
+        assertEquals("Failed to covert path to artifact!", "spring-boot-dependencies", artifact13.getArtifactId());
+        assertEquals("Failed to covert path to artifact!", "2.0.6.RELEASE", artifact13.getVersion());
+        assertNull("Failed to covert path to artifact!", artifact13.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "pom", artifact13.getType());
+
+        Artifact artifact14 = ArtifactUtils.convertPathToArtifact("com/foo/bar");
+
+        assertNotNull("Failed to covert path to artifact!", artifact14);
+        assertEquals("Failed to covert path to artifact!", "com.foo", artifact14.getGroupId());
+        assertEquals("Failed to covert path to artifact!", "bar", artifact14.getArtifactId());
+        assertNull("Failed to covert path to artifact!", artifact14.getVersion());
+        assertNull("Failed to covert path to artifact!", artifact14.getClassifier());
+        assertNull("Failed to covert path to artifact!", artifact14.getType());
+
+        Artifact artifact15 = ArtifactUtils.convertPathToArtifact("com/foo");
+
+        assertNotNull("Failed to covert path to artifact!", artifact15);
+        assertEquals("Failed to covert path to artifact!", "com", artifact15.getGroupId());
+        assertEquals("Failed to covert path to artifact!", "foo", artifact15.getArtifactId());
+        assertNull("Failed to covert path to artifact!", artifact15.getVersion());
+        assertNull("Failed to covert path to artifact!", artifact15.getClassifier());
+        assertNull("Failed to covert path to artifact!", artifact15.getType());
+
+        // Test the case where the matching logic breaks if it finds a String which repeats near the end of the path assuming its a version.
+        // In this case it was incorrectly assuming "metadata" is the version (due to the repetition)
+        // and therefore screwing up the GAV components by setting them to "org.carlspring:strongbox:metadata".
+        Artifact artifact16 = ArtifactUtils.convertPathToArtifact("org/carlspring/strongbox/metadata/strongbox-metadata");
+
+        assertNotNull("Failed to covert path to artifact!", artifact16);
+        assertEquals("Failed to covert path to artifact!", "org.carlspring.strongbox.metadata", artifact16.getGroupId());
+        assertEquals("Failed to covert path to artifact!", "strongbox-metadata", artifact16.getArtifactId());
+        assertNull("Failed to covert path to artifact!", artifact16.getVersion());
+        assertNull("Failed to covert path to artifact!", artifact16.getClassifier());
+        assertNull("Failed to covert path to artifact!", artifact16.getType());
+
+        Artifact artifact17 = ArtifactUtils.convertPathToArtifact("org/carlspring/strongbox/metadata/strongbox-metadata/6.0/strongbox-metadata-6.0.jar");
+
+        assertNotNull("Failed to covert path to artifact!", artifact17);
+        assertEquals("Failed to covert path to artifact!", "org.carlspring.strongbox.metadata", artifact17.getGroupId());
+        assertEquals("Failed to covert path to artifact!", "strongbox-metadata", artifact17.getArtifactId());
+        assertEquals("Failed to covert path to artifact!", "6.0", artifact17.getVersion());
+        assertNull("Failed to covert path to artifact!", artifact17.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "jar", artifact17.getType());
+
+        // Test if we handle properly paths which start and end with a trailing slash
+        Artifact artifact18 = ArtifactUtils.convertPathToArtifact("org/carlspring/strongbox/added/");
+
+        assertNotNull("Failed to covert path to artifact!", artifact18);
+        assertEquals("Failed to covert path to artifact!", "org.carlspring.strongbox", artifact18.getGroupId());
+        assertEquals("Failed to covert path to artifact!", "added", artifact18.getArtifactId());
+        assertNull("Failed to covert path to artifact!",  artifact18.getVersion());
+        assertNull("Failed to covert path to artifact!", artifact18.getClassifier());
+        assertNull("Failed to covert path to artifact!", artifact18.getType());
+
+        Artifact artifact19 = ArtifactUtils.convertPathToArtifact("/org/carlspring/strongbox/added/");
+
+        assertNotNull("Failed to covert path to artifact!", artifact18);
+        assertEquals("Failed to covert path to artifact!", "org.carlspring.strongbox", artifact19.getGroupId());
+        assertEquals("Failed to covert path to artifact!", "added", artifact19.getArtifactId());
+        assertNull("Failed to covert path to artifact!",  artifact19.getVersion());
+        assertNull("Failed to covert path to artifact!", artifact19.getClassifier());
+        assertNull("Failed to covert path to artifact!", artifact19.getType());
+
+        // Test if we properly handle paths ending with maven-metadata.xml.
+        Artifact artifact20 = ArtifactUtils.convertPathToArtifact("org/carlspring/strongbox/added/2.0-SNAPSHOT/maven-metadata.xml");
+
+        assertNotNull("Failed to covert path to artifact!", artifact20);
+        assertEquals("Failed to convert path to artifact!", "org.carlspring.strongbox", artifact20.getGroupId());
+        assertEquals("Failed to convert path to artifact!", "maven-metadata.xml", artifact20.getArtifactId());
+        assertEquals("Failed to convert path to artifact!", "2.0-SNAPSHOT", artifact20.getVersion());
+        assertNull("Failed to convert path to artifact!", artifact20.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "xml", artifact20.getType());
+
+        // Path ends with the version
+        Artifact artifact21 = ArtifactUtils.convertPathToArtifact("org/carlspring/strongbox/2.0-SNAPSHOT");
+
+        assertNotNull("Failed to covert path to artifact!", artifact21);
+        assertEquals("Failed to convert path to artifact!", "org.carlspring", artifact21.getGroupId());
+        assertEquals("Failed to convert path to artifact!", "strongbox", artifact21.getArtifactId());
+        assertEquals("Failed to convert path to artifact!", "2.0-SNAPSHOT", artifact21.getVersion());
+        assertNull("Failed to convert path to artifact!", artifact21.getClassifier());
+        assertNull("Failed to covert path to artifact!", artifact21.getType());
+
+        // Test windows style paths
+        Artifact artifact22 = ArtifactUtils.convertPathToArtifact("org\\carlspring\\strongbox\\2.0-SNAPSHOT");
+
+        assertNotNull("Failed to covert path to artifact!", artifact22);
+        assertEquals("Failed to convert path to artifact!", "org.carlspring", artifact22.getGroupId());
+        assertEquals("Failed to convert path to artifact!", "strongbox", artifact22.getArtifactId());
+        assertEquals("Failed to convert path to artifact!", "2.0-SNAPSHOT", artifact22.getVersion());
+        assertNull("Failed to convert path to artifact!", artifact22.getClassifier());
+        assertNull("Failed to covert path to artifact!", artifact22.getType());
+
+        Artifact artifact23 = ArtifactUtils.convertPathToArtifact("org\\\\carlspring\\\\strongbox\\\\2.0-SNAPSHOT");
+
+        assertNotNull("Failed to covert path to artifact!", artifact23);
+        assertEquals("Failed to convert path to artifact!", "org.carlspring", artifact23.getGroupId());
+        assertEquals("Failed to convert path to artifact!", "strongbox", artifact23.getArtifactId());
+        assertEquals("Failed to convert path to artifact!", "2.0-SNAPSHOT", artifact23.getVersion());
+        assertNull("Failed to convert path to artifact!", artifact23.getClassifier());
+        assertNull("Failed to covert path to artifact!", artifact23.getType());
     }
 
     @Test
     public void testConvertArtifactToPath()
     {
-        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(
-                "org.carlspring.foo:bar:1.2.3-20150409-125301-1:jar:javadoc");
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:bar:1.2.3-20150409-125301-1:jar:javadoc");
+        String path1 = ArtifactUtils.convertArtifactToPath(artifact1);
+        assertEquals("org/carlspring/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-20150409-125301-1-javadoc.jar", path1);
+        System.out.println(artifact1.toString() + " -> " + path1);
 
-        String path = ArtifactUtils.convertArtifactToPath(artifact);
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:bar:1.2.3-20150409-125301-1:jar");
+        String path2 = ArtifactUtils.convertArtifactToPath(artifact2);
+        assertEquals("org/carlspring/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-20150409-125301-1.jar", path2);
+        System.out.println(artifact2.toString() + " -> " + path2);
 
-        assertEquals("org/carlspring/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-20150409-125301-1-javadoc.jar", path);
+        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:bar:1.2.3-alpha:tar.gz:javadoc");
+        String path3 = ArtifactUtils.convertArtifactToPath(artifact3);
+        assertEquals("org/carlspring/foo/bar/1.2.3-alpha/bar-1.2.3-alpha-javadoc.tar.gz", path3);
+        System.out.println(artifact3.toString() + " -> " + path3);
 
-        System.out.println(artifact.toString() + " -> " + path);
+        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:bar:1.2.3:tar.gz");
+        String path4 = ArtifactUtils.convertArtifactToPath(artifact4);
+        assertEquals("org/carlspring/foo/bar/1.2.3/bar-1.2.3.tar.gz", path4);
+        System.out.println(artifact4.toString() + " -> " + path4);
+
+        Artifact artifact5 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:bar:1.2.3-SNAPSHOT:jar");
+        String path5 = ArtifactUtils.convertArtifactToPath(artifact5);
+        assertEquals("org/carlspring/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-SNAPSHOT.jar", path5);
+        System.out.println(artifact5.toString() + " -> " + path5);
     }
 
     @Test
@@ -400,34 +474,7 @@ public class ArtifactUtilsTest
 
         assertFalse(ArtifactUtils.pathIsCompleteGAV("com/foo/bar"));
         assertFalse(ArtifactUtils.pathIsCompleteGAV("com/bar"));
-
-        Artifact artifact1 = ArtifactUtils.convertPathToArtifact("com/foo/bar");
-        assertEquals("com.foo", artifact1.getGroupId());
-        assertEquals("bar", artifact1.getArtifactId());
-
-        Artifact artifact2 = ArtifactUtils.convertPathToArtifact("com/foo");
-        assertEquals("com", artifact2.getGroupId());
-        assertEquals("foo", artifact2.getArtifactId());
-
-        Artifact artifact3 = ArtifactUtils.convertPathToArtifact("com/foo/bar/blah");
-        assertEquals("com.foo.bar", artifact3.getGroupId());
-        assertEquals("blah", artifact3.getArtifactId());
-
-        Artifact artifact4 = ArtifactUtils.convertPathToArtifact("com/foo/bar/yadee-yadda");
-        assertEquals("com.foo.bar", artifact4.getGroupId());
-        assertEquals("yadee-yadda", artifact4.getArtifactId());
-
-        // Test the case where the matching logic breaks if it finds a String which repeats near the end of the path assuming its a version.
-        // In this case it was incorrectly assuming "metadata" is the version (due to the repetition)
-        // and therefore screwing up the GAV components by setting them to "org.carlspring:strongbox:metadata".
-        Artifact artifact5 = ArtifactUtils.convertPathToArtifact("org/carlspring/strongbox/metadata/strongbox-metadata");
-        assertEquals("org.carlspring.strongbox.metadata", artifact5.getGroupId());
-        assertEquals("strongbox-metadata", artifact5.getArtifactId());
-
-        Artifact artifact6 = ArtifactUtils.convertPathToArtifact("org/carlspring/strongbox/metadata/strongbox-metadata/6.0/strongbox-metadata-6.0.jar");
-        assertEquals("org.carlspring.strongbox.metadata", artifact6.getGroupId());
-        assertEquals("strongbox-metadata", artifact6.getArtifactId());
-        assertEquals("6.0", artifact6.getVersion());
+        assertFalse(ArtifactUtils.pathIsCompleteGAV("com"));
     }
 
     @Test
@@ -457,7 +504,8 @@ public class ArtifactUtilsTest
     }
 
     @Test
-    public void testGetArtifactLevelMetadataPath() throws Exception
+    public void testGetArtifactLevelMetadataPath()
+            throws Exception
     {
         // com/foo/bar/1.2.3/bar-1.2.3.jar --> com/foo/bar/
         Artifact artifact = ArtifactUtils.convertPathToArtifact("com/foo/bar/1.2.3/bar-1.2.3.jar");
@@ -469,7 +517,8 @@ public class ArtifactUtilsTest
     }
 
     @Test
-    public void testGetVersionLevelMetadataPath() throws Exception
+    public void testGetVersionLevelMetadataPath()
+            throws Exception
     {
         // com/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-SNAPSHOT.jar --> com/foo/bar/1.2.3-SNAPSHOT
         Artifact artifact = ArtifactUtils.convertPathToArtifact("com/foo/bar/1.2.3-SNAPSHOT/bar-1.2.3-SNAPSHOT.jar");

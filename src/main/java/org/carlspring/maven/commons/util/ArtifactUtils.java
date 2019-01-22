@@ -7,7 +7,7 @@ package org.carlspring.maven.commons.util;
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,16 @@ package org.carlspring.maven.commons.util;
  * limitations under the License.
  */
 
-import org.apache.commons.io.FilenameUtils;
+import org.carlspring.maven.commons.DetachedArtifact;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
@@ -24,14 +33,6 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.artifact.PluginArtifact;
-import org.carlspring.maven.commons.DetachedArtifact;
-
-import java.io.File;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author mtodorov
@@ -66,112 +67,7 @@ public class ArtifactUtils
 
     public static Artifact convertPathToArtifact(String path)
     {
-        String groupId = "";
-        String artifactId = null;
-        String version = null;
-        StringBuilder classifier = new StringBuilder();
-        String type = null;
-
-        String[] pathElements = path.split("/|\\\\");
-
-        if (pathIsCompleteGAV(path))
-        {
-            for (int i = 0; i < (pathElements.length - 3); i++)
-            {
-                groupId += groupId.length() == 0 ? pathElements[i] : "." + pathElements[i];
-            }
-
-            artifactId = pathElements[pathElements.length - 3];
-
-            String fileName = FilenameUtils.getBaseName(path);
-
-            String versionPath = Paths.get(path).toFile().getParentFile().getName();
-            if (versionPath.toLowerCase().contains("snapshot"))
-            {
-                versionPath = versionPath.replaceAll("(?i)-snapshot", "");
-            }
-
-            // Store version part 1
-            version = versionPath;
-
-            String split = fileName.substring((artifactId.length() + versionPath.length() + 1), fileName.length());
-
-            if (!split.isEmpty())
-            {
-                // remove leading dash
-                split = split.substring(1, split.length());
-
-                String[] tokens = split.split("-");
-
-                for (String token : tokens)
-                {
-                    String lowerToken = token.toLowerCase();
-                    if (lowerToken.contains("snapshot"))
-                    {
-                        version += "-SNAPSHOT";
-                    }
-                    else if (Character.isDigit(lowerToken.charAt(0)) && Character.isDigit(lowerToken.charAt(lowerToken.length() - 1)))
-                    {
-                        version += "-" + token;
-                    }
-                    else
-                    {
-                        if (classifier.length() > 0)
-                        {
-                            classifier.append("-");
-                        }
-
-                        classifier.append(token);
-                    }
-                }
-            }
-
-            type = path.substring(path.lastIndexOf(".") + 1, path.length());
-        }
-        else
-        {
-            if (pathElements.length >= 3)
-            {
-                String aId = pathElements[pathElements.length - 3];
-                String v = pathElements[pathElements.length - 2];
-                String fileName  = pathElements[pathElements.length - 1];
-
-                // @steve-todorov: This is how black magic happens.
-                // If there is no dot in the file name, then there is apparently no version data.
-                // 1) Because versions normally contain at least one dot
-                // 2) Because artifact files will have some sort of extension
-                if (fileName.contains(aId) && fileName.contains(v) && fileName.contains("."))
-                {
-                    // There seems to be sufficient information from which to extract the artifactId
-                    artifactId = aId;
-                    version = v;
-                }
-                else
-                {
-                    // This is apparently just g:a
-                    groupId = "";
-                    for (int i = 0; i <= (pathElements.length - 2); i++)
-                    {
-                        groupId += groupId.length() == 0 ? pathElements[i] : "." + pathElements[i];
-                    }
-
-                    artifactId = pathElements[pathElements.length - 1];
-                }
-            }
-            else
-            {
-                groupId = pathElements[0];
-                artifactId = pathElements.length == 2 ?               // This is apparently just g:a
-                             pathElements[1] :
-                             null;                                    // There is insufficient information from which to extract the artifactId
-            }
-        }
-
-        return new DetachedArtifact(groupId,
-                                    artifactId,
-                                    version,
-                                    type,
-                                    (classifier.length() > 0 ? classifier.toString() : null));
+        return new PathParser(path).getArtifact();
     }
 
     public static boolean pathIsCompleteGAV(String path)
@@ -202,47 +98,31 @@ public class ArtifactUtils
 
     public static String convertArtifactToPath(Artifact artifact)
     {
-        String path = "";
+        return convertArtifactToPath(artifact, File.separator);
+    }
 
-        path += artifact.getGroupId().replaceAll("\\.", "/") + "/";
-        path += artifact.getArtifactId();
+    public static String convertArtifactToPath(Artifact artifact, String separator)
+    {
+        StringJoiner path = new StringJoiner(separator);
+
+        path.add(StringUtils.replace(artifact.getGroupId(), ".", separator));
+        path.add(artifact.getArtifactId());
 
         if (artifact.getVersion() != null)
         {
-            path += "/";
-
             if (isReleaseVersion(artifact.getVersion()))
             {
-                path += artifact.getVersion() + "/";
+                path.add(artifact.getVersion());
             }
             else
             {
-                path += getSnapshotBaseVersion(artifact.getVersion()) + "/";
+                path.add(getSnapshotBaseVersion(artifact.getVersion()));
             }
 
-            path += artifact.getArtifactId() + "-";
-            path += artifact.getVersion();
-            path += artifact.getClassifier() != null &&
-                    !artifact.getClassifier().equals("") &&
-                    !artifact.getClassifier().equals("null") ?
-                    "-" + artifact.getClassifier() : "";
-                    
-            if (artifact instanceof PluginArtifact)
-            {
-                path += ".jar";
-            }
-            else
-            {
-                path += artifact.getType() != null ? "." + artifact.getType() : ".jar";
-            }
-        }
-        else
-        {
-
+            path.add(getArtifactFileName(artifact));
         }
 
-
-        return path;
+        return path.toString();
     }
 
     public static String getArtifactFileName(Artifact artifact)
@@ -337,7 +217,7 @@ public class ArtifactUtils
         String groupId = gavComponents[0];
         String artifactId = gavComponents[1];
         String version = gavComponents.length >= 3 ? gavComponents[2] : null;
-        String type = gavComponents.length < 4 ? "jar": gavComponents[3];
+        String type = gavComponents.length < 4 ? "jar" : gavComponents[3];
         String classifier = gavComponents.length < 5 ? null : gavComponents[4];
 
         return new DetachedArtifact(groupId,

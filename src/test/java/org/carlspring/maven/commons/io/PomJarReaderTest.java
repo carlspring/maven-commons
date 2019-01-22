@@ -1,8 +1,5 @@
 package org.carlspring.maven.commons.io;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +10,9 @@ import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author mtodorov
@@ -29,8 +28,7 @@ public class PomJarReaderTest
 
     private PomJarReader pomJarReader = new PomJarReader(JAR);
 
-
-    @Before
+    @BeforeEach
     public void setUp()
             throws Throwable
     {
@@ -55,7 +53,8 @@ public class PomJarReaderTest
         assertNotNull(is);
     }
 
-    private void createTestJar(Path jarPath, String internalPath)
+    private void createTestJar(Path jarPath,
+                               String internalPath)
             throws Throwable
     {
         Map<String, String> env = new HashMap<>();

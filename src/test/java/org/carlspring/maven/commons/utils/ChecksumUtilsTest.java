@@ -17,10 +17,11 @@ package org.carlspring.maven.commons.utils;
  */
 
 import org.carlspring.maven.commons.util.ChecksumUtils;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.Test;
+import static junit.framework.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 /**
  * @author mtodorov
@@ -28,7 +29,7 @@ import static org.junit.Assert.assertNotNull;
 public class ChecksumUtilsTest
 {
 
-    public static final String FILE_NAME = System.getProperty("basedir") + "/target/test-classes/checksum-test-file";
+    public static final String FILE_NAME = "target/test-classes/checksum-test-file";
 
     @Test
     public void testMD5Sum()

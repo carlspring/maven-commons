@@ -38,38 +38,6 @@ pipeline {
                 }
             }
         }
-        stage('Code Analysis') {
-            steps {
-                withMaven(maven: 'maven-3.5', mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833')
-                {
-                    script {
-                        if(env.BRANCH_NAME == 'master') {
-                            withSonarQubeEnv('sonar') {
-                                // requires SonarQube Scanner for Maven 3.2+
-                                sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.4.0.905:sonar"
-                            }
-                        }
-                        else {
-                            if(env.BRANCH_NAME.startsWith("PR-"))
-                            {
-                                withSonarQubeEnv('sonar') {
-                                    def PR_NUMBER = env.CHANGE_ID
-                                    echo "Triggering sonar analysis in comment-only mode for PR: ${PR_NUMBER}."
-                                    sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.4.0.905:sonar" +
-                                       " -Psonar-github" +
-                                       " -Dsonar.github.repository=${REPO_NAME}" +
-                                       " -Dsonar.github.pullRequest=${PR_NUMBER}"
-                                }
-                            }
-                            else
-                            {
-                                echo "This step is skipped for branches other than master or PR-*"
-                            }
-                        }
-                    }
-                }
-            }
-        }
         stage('Deploy') {
             when {
                 expression { (currentBuild.result == null || currentBuild.result == 'SUCCESS') }

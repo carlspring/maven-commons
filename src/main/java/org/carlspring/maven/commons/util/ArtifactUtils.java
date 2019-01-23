@@ -98,7 +98,7 @@ public class ArtifactUtils
 
     public static String convertArtifactToPath(Artifact artifact)
     {
-        return convertArtifactToPath(artifact, File.separator);
+        return convertArtifactToPath(artifact, "/");
     }
 
     public static String convertArtifactToPath(Artifact artifact, String separator)

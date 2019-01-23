@@ -88,10 +88,11 @@ public class PathParser
             version = segments.get(segments.size() - 2);
             String versionStripped = StringUtils.replaceIgnoreCase(version, "-snapshot", "");
 
-            // Character.isDigit is meant to handle corner cases such as "org/carlspring/strongbox/metadata/strongbox-metadata"
+            // corner cases - testConvertPathToArtifact#artifact16 and testConvertPathToArtifact#artifact30
             if (StringUtils.endsWithIgnoreCase(version, "-snapshot") ||
                 (StringUtils.containsIgnoreCase(filename, versionStripped) &&
-                 VERSION_PATTERN.matcher(version).matches())
+                 VERSION_PATTERN.matcher(version).matches()) ||
+                version.matches("\\d+")
             )
             {
                 groupId = segments.get(0);
@@ -121,7 +122,9 @@ public class PathParser
             {
                 // Maybe the path ends with the version?
                 version = segments.get(segments.size() - 1);
-                if (VERSION_PATTERN.matcher(version).matches())
+
+                // corner case - testConvertPathToArtifact#artifact31
+                if (VERSION_PATTERN.matcher(version).matches() || version.matches("\\d+"))
                 {
                     groupId = segments.stream()
                                       .limit(segments.size() - 2)

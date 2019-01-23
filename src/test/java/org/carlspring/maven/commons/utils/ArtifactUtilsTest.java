@@ -357,6 +357,24 @@ public class ArtifactUtilsTest
         assertEquals("Failed to convert path to artifact!", "VER5.1-beta", artifact28.getVersion());
         assertEquals("Failed to convert path to artifact!", "javadoc", artifact28.getClassifier());
         assertEquals("Failed to covert path to artifact!", "jar", artifact28.getType());
+
+        Artifact artifact30 = ArtifactUtils.convertPathToArtifact("javax/inject/javax.inject/1/javax.inject-1.pom");
+
+        assertNotNull("Failed to covert path to artifact!", artifact30);
+        assertEquals("Failed to convert path to artifact!", "javax.inject", artifact30.getGroupId());
+        assertEquals("Failed to convert path to artifact!", "javax.inject", artifact30.getArtifactId());
+        assertEquals("Failed to convert path to artifact!", "1", artifact30.getVersion());
+        assertNull("Failed to convert path to artifact!", artifact30.getClassifier());
+        assertEquals("Failed to covert path to artifact!", "pom", artifact30.getType());
+
+        Artifact artifact31 = ArtifactUtils.convertPathToArtifact("javax/inject/javax.inject/1");
+
+        assertNotNull("Failed to covert path to artifact!", artifact31);
+        assertEquals("Failed to convert path to artifact!", "javax.inject", artifact31.getGroupId());
+        assertEquals("Failed to convert path to artifact!", "javax.inject", artifact31.getArtifactId());
+        assertEquals("Failed to convert path to artifact!", "1", artifact31.getVersion());
+        assertNull("Failed to convert path to artifact!", artifact31.getClassifier());
+        assertNull("Failed to covert path to artifact!", artifact31.getType());
     }
 
     @Test

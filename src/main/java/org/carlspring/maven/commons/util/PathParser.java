@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.apache.maven.artifact.Artifact.LATEST_VERSION;
+import static org.apache.maven.artifact.Artifact.SNAPSHOT_VERSION;
 
 public class PathParser
 {
@@ -58,7 +60,8 @@ public class PathParser
         String groupId = null;
         String artifactId = null;
         String classifier = null;
-        String version = null;
+        String version = null; // This should be the actual version (with the timestamp when this is a snapshot)
+        String baseVersion = null; // This should be either the release version or X.Y.Z-SNAPSHOT without a timestamp.
         String type = null;
 
         if (segments.size() < 3)
@@ -86,6 +89,7 @@ public class PathParser
             // In a release, this would normally be something like 1.2.3(-alpha)
             // In a snapshot, this would normally be something like 1.2.3-SNAPSHOT
             version = segments.get(segments.size() - 2);
+            baseVersion = version; // we use the path version for `baseVersion`
             String versionStripped = StringUtils.replaceIgnoreCase(version, "-snapshot", "");
 
             // corner cases - testConvertPathToArtifact#artifact16 and testConvertPathToArtifact#artifact30
@@ -102,8 +106,7 @@ public class PathParser
                 // snapshot version
                 if (!version.equals(versionStripped))
                 {
-                    String extractedVersion = extractSnapshotVersion(filename, versionStripped,
-                                                                     StringUtils.containsIgnoreCase(filename, version));
+                    String extractedVersion = extractSnapshotVersion(filename, baseVersion);
 
                     // We need this so that if we can't extract the version from the filename (i.e. maven-metadata.xml)
                     // we still end up with a version.
@@ -122,6 +125,7 @@ public class PathParser
             {
                 // Maybe the path ends with the version?
                 version = segments.get(segments.size() - 1);
+                baseVersion = version;
 
                 // corner case - testConvertPathToArtifact#artifact31
                 if (VERSION_PATTERN.matcher(version).matches() || version.matches("\\d+"))
@@ -141,6 +145,7 @@ public class PathParser
                                       .collect(Collectors.joining("."));
                     artifactId = segments.get(segments.size() - 1);
                     version = null;
+                    baseVersion = null;
                 }
             }
 
@@ -157,10 +162,11 @@ public class PathParser
         }
 
         artifact = new DetachedArtifact(groupId, artifactId, version, type, classifier);
+        artifact.setBaseVersion(baseVersion);
 
-        logger.debug("Coordinates: {} [groupId: {}; artifactId: {}, version: {}, classifier: {}, type: {}]",
+        logger.debug("Coordinates: {} [groupId: {}; artifactId: {}, version: {}, baseVersion: {}, classifier: {}, type: {}]",
                      artifact, artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
-                     artifact.getClassifier(), artifact.getType());
+                     artifact.getBaseVersion(), artifact.getClassifier(), artifact.getType());
     }
 
     private List<String> getSegments(String path)
@@ -208,19 +214,29 @@ public class PathParser
     }
 
     /**
-     * @param filename       the full filename
-     * @param baseVersion    the base version (i.e. 1.0, 1.0-alpha, excluding the -SNAPSHOT word for snapshot versions)
-     * @param appendSnapshot append "-SNAPSHOT" to the end of the extracted version.
+     * @param filename         the full filename
+     * @param baseVersion      the base version - this will be whatever the version in the path has
      * @return
      */
     private String extractSnapshotVersion(String filename,
-                                          String baseVersion,
-                                          boolean appendSnapshot)
+                                          String baseVersion)
     {
-        int baseVersionStartPosition = filename.indexOf(baseVersion);
-        int baseVersionEndPosition = baseVersionStartPosition + baseVersion.length();
+        int baseVersionStartPosition;
+        int baseVersionEndPosition;
 
-        String version = null;
+        // corner case: testArtifactToPathWithClassifierAndTimestampedSnapshot
+        if(StringUtils.containsIgnoreCase(filename, baseVersion))
+        {
+            baseVersionStartPosition = filename.indexOf(baseVersion);
+            baseVersionEndPosition = baseVersionStartPosition + baseVersion.length();
+        }
+        else
+        {
+            String versionStripped = StringUtils.replaceIgnoreCase(baseVersion, "-snapshot", "");
+            baseVersionStartPosition = filename.indexOf(versionStripped);
+            baseVersionEndPosition = baseVersionStartPosition + versionStripped.length();
+        }
+
         StringBuilder versionBuilder = new StringBuilder();
 
         // filename could be `maven-metadata.xml` in which case there will be no version in the filename to match against.
@@ -255,25 +271,7 @@ public class PathParser
             }
         }
 
-
-        if (versionBuilder.length() > 0)
-        {
-            version = versionBuilder.toString();
-
-            char lastChar = version.charAt(version.length() - 1);
-            if (lastChar == '-' || lastChar == '.' || lastChar == '_')
-            {
-                version = version.substring(0, version.length() - 1);
-            }
-
-            if (appendSnapshot)
-            {
-                version = version + "-SNAPSHOT";
-            }
-        }
-
-
-        return version;
+        return versionBuilder.length() > 0 ? versionBuilder.toString() : null;
     }
 
     /**

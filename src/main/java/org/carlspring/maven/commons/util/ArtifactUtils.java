@@ -33,6 +33,9 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.artifact.PluginArtifact;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static org.apache.maven.artifact.Artifact.SNAPSHOT_VERSION;
 
 /**
  * @author mtodorov
@@ -40,10 +43,9 @@ import org.apache.maven.project.artifact.PluginArtifact;
 public class ArtifactUtils
 {
 
-    private static final Pattern versionPattern = Pattern.compile("^(?i)(\\d+((\\.\\d+)+)?)(((?!-\\d{8})-\\w+)*)?(-(\\d{8})((.|-)(\\d+)((.|-)(\\d+))?)?)?$");
-    private static final Pattern BASE_VERSION_PATTERN = Pattern.compile("^(\\d+((\\.\\d+)+)?)(((?!-\\d{8})-\\w+)*)?");
-    private static final Pattern TIMESTAMP_BUILDNUMBER_PATTERN = Pattern.compile("((\\d{8})(.|-)(\\d+))((.|-)(\\d+))?$");
+    private final static Logger logger = LoggerFactory.getLogger(ArtifactUtils.class);
 
+    private static final Pattern SNAPSHOT_VERSION_PATTERN = Pattern.compile("(.*)-(([0-9]{8}.[0-9]{6})(.([0-9]+))?)$" );
 
     public static boolean isPom(String path)
     {
@@ -83,7 +85,10 @@ public class ArtifactUtils
 
             String artifactId = pathElements[pathElements.length - 3];
             String version = pathElements[pathElements.length - 2];
-            version = isSnapshot(version) ? getSnapshotBaseVersion(version, false) : version;
+
+            if(StringUtils.containsIgnoreCase(version, "-snapshot")) {
+                version = version.substring(0, version.length() - 10);
+            }
 
             String fileName = pathElements[pathElements.length - 1];
 
@@ -108,7 +113,13 @@ public class ArtifactUtils
         path.add(StringUtils.replace(artifact.getGroupId(), ".", separator));
         path.add(artifact.getArtifactId());
 
-        if (artifact.getVersion() != null)
+        if(artifact.getBaseVersion() != null)
+        {
+            path.add(artifact.getBaseVersion());
+            path.add(getArtifactFileName(artifact));
+        }
+        // Fallback.
+        else if(artifact.getVersion() != null)
         {
             if (isReleaseVersion(artifact.getVersion()))
             {
@@ -155,7 +166,8 @@ public class ArtifactUtils
 
         return new File(localArtifactDir,
                         artifact.getArtifactId() + "-" +
-                        artifact.getVersion() + (artifact.getClassifier() != null ? "-" + artifact.getClassifier() : "") +
+                        artifact.getVersion() +
+                        (artifact.getClassifier() != null ? "-" + artifact.getClassifier() : "") +
                         "." + artifact.getType()).getAbsolutePath();
     }
 
@@ -166,7 +178,8 @@ public class ArtifactUtils
 
         return new File(localArtifactDir,
                         artifact.getArtifactId() + "-" +
-                        artifact.getVersion() + (artifact.getClassifier() != null ? "-" + artifact.getClassifier() : "") +
+                        artifact.getVersion() +
+                        (artifact.getClassifier() != null ? "-" + artifact.getClassifier() : "") +
                         "." + artifact.getType()).getAbsolutePath();
     }
 
@@ -212,6 +225,8 @@ public class ArtifactUtils
      */
     public static Artifact getArtifactFromGAVTC(String gavtc)
     {
+        logger.debug("Parsing string coordinates: {}", gavtc);
+
         String[] gavComponents = gavtc.split(":");
 
         String groupId = gavComponents[0];
@@ -219,12 +234,42 @@ public class ArtifactUtils
         String version = gavComponents.length >= 3 ? gavComponents[2] : null;
         String type = gavComponents.length < 4 ? "jar" : gavComponents[3];
         String classifier = gavComponents.length < 5 ? null : gavComponents[4];
+        String baseVersion = version;
 
-        return new DetachedArtifact(groupId,
-                                    artifactId,
-                                    version,
-                                    type,
-                                    classifier);
+        if (version != null)
+        {
+            Matcher m = SNAPSHOT_VERSION_PATTERN.matcher(version);
+            if (m.matches())
+            {
+                baseVersion = m.group(1) + "-" + SNAPSHOT_VERSION;
+            }
+            else
+            {
+                // corner case: testArtifactToPathWithClassifierAndTimestampedSnapshot
+                int snapshotIndex = StringUtils.indexOfIgnoreCase(version, "-snapshot");
+                if (snapshotIndex > -1 && !StringUtils.endsWithIgnoreCase(version, "-snapshot"))
+                {
+                    String baseVersionWithoutSnapshot = version.substring(0, snapshotIndex);
+                    baseVersion = baseVersionWithoutSnapshot + "-SNAPSHOT";
+
+                    String snapshotTimestamp = version.substring(snapshotIndex + 10);
+
+                    if (!StringUtils.isBlank(snapshotTimestamp))
+                    {
+                        version = baseVersion + "-" + snapshotTimestamp;
+                    }
+                }
+            }
+        }
+
+        Artifact artifact = new DetachedArtifact(groupId, artifactId, version, type, classifier);
+        artifact.setBaseVersion(baseVersion);
+
+        logger.debug("Coordinates: {} [groupId: {}; artifactId: {}, version: {}, baseVersion: {}, classifier: {}, type: {}]",
+                     artifact, artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
+                     artifact.getBaseVersion(), artifact.getClassifier(), artifact.getType());
+
+        return artifact;
     }
 
     /**
@@ -270,20 +315,7 @@ public class ArtifactUtils
 
     public static boolean isSnapshot(String version)
     {
-        Matcher versionMatcher = versionPattern.matcher(version);
-
-        if (versionMatcher.find())
-        {
-            String middle = versionMatcher.group(4);
-            String timestamp = versionMatcher.group(7);
-
-            if ((middle != null && !middle.isEmpty() && middle.toLowerCase().contains("snapshot")) || (timestamp != null && !timestamp.isEmpty()))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return StringUtils.containsIgnoreCase(version, "-snapshot") || SNAPSHOT_VERSION_PATTERN.matcher(version).matches();
     }
 
     public static boolean isReleaseVersion(String version)
@@ -298,19 +330,11 @@ public class ArtifactUtils
 
     public static String getSnapshotBaseVersion(String version, boolean appendSnapshotSuffix)
     {
-        Matcher matcher = BASE_VERSION_PATTERN.matcher(version);
+        Matcher matcher = SNAPSHOT_VERSION_PATTERN.matcher(version);
 
-        if (matcher.find())
+        if (matcher.matches())
         {
-            String versionNumber = matcher.group(1);
-            String versionEnding = matcher.group(4);
-
-            String baseVersion = versionNumber;
-
-            if (versionEnding != null && !versionEnding.isEmpty())
-            {
-                baseVersion += versionEnding.replaceAll("(?i)-snapshot", "");
-            }
+            String baseVersion = matcher.group(1);
 
             return appendSnapshotSuffix ? baseVersion + "-SNAPSHOT" : baseVersion;
         }
@@ -322,13 +346,13 @@ public class ArtifactUtils
     {
         String timestamp = null;
 
-        if(isSnapshot(version))
+        if (isSnapshot(version))
         {
-            Matcher snapshotMatcher = TIMESTAMP_BUILDNUMBER_PATTERN.matcher(version);
+            Matcher snapshotMatcher = SNAPSHOT_VERSION_PATTERN.matcher(version);
 
-            if (snapshotMatcher.find())
+            if (snapshotMatcher.matches())
             {
-                timestamp = snapshotMatcher.group(1);
+                timestamp = snapshotMatcher.group(3);
             }
 
         }
@@ -340,13 +364,13 @@ public class ArtifactUtils
     {
         String buildNumber = null;
 
-        if(isSnapshot(version))
+        if (isSnapshot(version))
         {
-            Matcher snapshotMatcher = TIMESTAMP_BUILDNUMBER_PATTERN.matcher(version);
+            Matcher snapshotMatcher = SNAPSHOT_VERSION_PATTERN.matcher(version);
 
-            if (snapshotMatcher.find())
+            if (snapshotMatcher.matches())
             {
-                buildNumber = snapshotMatcher.group(7);
+                buildNumber = snapshotMatcher.group(5);
             }
 
         }

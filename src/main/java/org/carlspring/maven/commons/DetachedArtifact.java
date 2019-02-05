@@ -1,5 +1,11 @@
 package org.carlspring.maven.commons;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
+
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.metadata.ArtifactMetadata;
@@ -8,11 +14,6 @@ import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.OverConstrainedVersionException;
 import org.apache.maven.artifact.versioning.VersionRange;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
-import java.io.File;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * @author mtodorov
@@ -34,6 +35,10 @@ public class DetachedArtifact implements Artifact
 
     private File file;
 
+    /**
+     * This should be either the actual release version or X.Y.Z-SNAPSHOT
+     */
+    private String baseVersion = null;
 
     public DetachedArtifact(String groupId, String artifactId, VersionRange version, String type, String classifier)
     {
@@ -160,13 +165,13 @@ public class DetachedArtifact implements Artifact
     @Override
     public String getBaseVersion()
     {
-        return null;
+        return this.baseVersion;
     }
 
     @Override
     public void setBaseVersion(String s)
     {
-
+        this.baseVersion = s;
     }
 
     @Override
@@ -275,7 +280,8 @@ public class DetachedArtifact implements Artifact
     public boolean isSnapshot()
     {
         // TODO: Support VersionRange-s
-        return ArtifactUtils.isSnapshot(getVersionRange().toString());
+        return getBaseVersion() != null
+               && ( getBaseVersion().endsWith( SNAPSHOT_VERSION ) || getBaseVersion().equals( LATEST_VERSION ) );
     }
 
     @Override
@@ -305,7 +311,7 @@ public class DetachedArtifact implements Artifact
     public boolean isRelease()
     {
         // TODO: Support VersionRange-s
-        return ArtifactUtils.isReleaseVersion(getVersionRange().toString());
+        return !isSnapshot();
     }
 
     @Override

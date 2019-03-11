@@ -5,7 +5,7 @@
 
     <groupId>org.carlspring.maven</groupId>
     <artifactId>maven-commons</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.4</version>
     <packaging>jar</packaging>
 
     <name>Maven Commons</name>
@@ -205,7 +205,8 @@
         <connection>scm:git:git@github.com:carlspring/maven-commons.git</connection>
         <url>scm:git:git@github.com:carlspring/maven-commons.git</url>
         <developerConnection>scm:git:git@github.com:carlspring/maven-commons.git</developerConnection>
-    </scm>
+      <tag>maven-commons-1.4</tag>
+  </scm>
 
     <distributionManagement>
         <repository>
@@ -230,6 +231,7 @@
                         <version>1.6</version>
 
                         <configuration>
+                            <passphraseServerId>sonatype-gpg-key</passphraseServerId>
                             <gpgArguments>
                                 <arg>--pinentry-mode</arg>
                                 <arg>loopback</arg>

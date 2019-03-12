@@ -87,6 +87,7 @@ pipeline {
                                 echo "Preparing GPG keys..."
                                 sh "gpg --list-secret-keys"
                                 sh "gpg --import ${8E3885CCF99DE3E178C55F32CEE144B17ECAC99A}"
+                                sh "gpg --list-secret-keys"
 
                                 echo "Set upstream branch..."
                                 sh "git branch --set-upstream-to=origin/master master"

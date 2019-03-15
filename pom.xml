@@ -94,16 +94,14 @@
                         <developmentBranch>master</developmentBranch>
                     </gitFlowConfig>
                     <commitMessages>
-                        <releaseStartMessage>[release] Releasing @{version}</releaseStartMessage>
-                        <releaseVersionUpdateMessage>[release] Update for next development version
-                        </releaseVersionUpdateMessage>
-                        <tagReleaseMessage>[release] Tag release</tagReleaseMessage>
-                        <releaseFinishMergeMessage>[release] Merge branch 'release/@{version}'</releaseFinishMergeMessage>
                         <!--
                             The release finish message specifically does not have a [release], so that Jenkins
                             will build the new development version.
                           -->
-                        <releaseFinishMessage>Set the next development version.</releaseFinishMessage>
+                        <releaseFinishMessage>[release] Set the next development version.</releaseFinishMessage>
+                        <releaseFinishMergeMessage>[release] Merge branch release/@{version}</releaseFinishMergeMessage>
+                        <tagReleaseMessage>[release] Tag release</tagReleaseMessage>
+                        <releaseFinishMergeMessage>[release] Merge branch 'release/@{version}'</releaseFinishMergeMessage>
                     </commitMessages>
                 </configuration>
             </plugin>

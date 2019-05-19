@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.apache.maven.artifact.Artifact.LATEST_VERSION;
-import static org.apache.maven.artifact.Artifact.SNAPSHOT_VERSION;
 
 public class PathParser
 {
@@ -101,8 +99,6 @@ public class PathParser
             {
                 groupId = segments.get(0);
                 artifactId = segments.get(1);
-                type = getFileExtension(filename);
-
                 // snapshot version
                 if (!version.equals(versionStripped))
                 {
@@ -116,9 +112,25 @@ public class PathParser
                     }
                 }
 
-                if (!version.equals(""))
+                String filenameTail = filename;
+                if (filenameTail.startsWith(artifactId))
                 {
-                    classifier = extractClassifier(filename, version, type);
+                    filenameTail = StringUtils.substringAfter(filenameTail, artifactId);
+                }
+                if (filenameTail.startsWith("-" + version))
+                {
+                    filenameTail = StringUtils.substringAfter(filenameTail, "-" + version);
+                }
+                type = getFileExtension(filenameTail);
+
+                String classifierCandidate = filenameTail;
+                if (type != null)
+                {
+                    classifierCandidate = StringUtils.substringBeforeLast(classifierCandidate, "." + type);
+                }
+                if (StringUtils.startsWith(classifierCandidate, "-"))
+                {
+                    classifier = classifierCandidate.substring(1);
                 }
             }
             else
@@ -275,52 +287,6 @@ public class PathParser
     }
 
     /**
-     * @param filename the filename
-     * @param version  the version as it would be in the filename.
-     * @param type     the file type (jar, zip, etc)
-     * @return
-     */
-    private String extractClassifier(String filename,
-                                     String version,
-                                     String type)
-    {
-        String classifier = null;
-
-        // filename could be `maven-metadata.xml` in which case there will be classifier
-        if (!filename.equalsIgnoreCase("maven-metadata.xml"))
-        {
-            int classifierStartPosition = filename.indexOf(version) + version.length() + 1;
-            int classifierEndPosition = type != null ? filename.length() - type.length() - 1 : 0;
-
-            // when there is no classifier, the starting position might exceed the end position.
-            if (classifierStartPosition < classifierEndPosition)
-            {
-                classifier = filename.substring(classifierStartPosition, classifierEndPosition);
-
-                if (!classifier.equals(""))
-                {
-                    for (String secondaryExtension : secondaryExtensions)
-                    {
-                        if (StringUtils.endsWithIgnoreCase(classifier, "." + secondaryExtension))
-                        {
-                            classifier = classifier.substring(0,
-                                                              classifier.length() -
-                                                              secondaryExtension.length() - 1);
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    classifier = null;
-                }
-            }
-        }
-
-        return classifier;
-    }
-
-    /**
      * Attempts to guess the artifact extension.
      *
      * @param filename
@@ -329,6 +295,10 @@ public class PathParser
     public static String getFileExtension(String filename)
     {
         String fileExtension = StringUtils.substringAfterLast(filename, ".");
+        if (StringUtils.isBlank(fileExtension))
+        {
+            return null;
+        }
         String filenameWithoutExtension = filename.substring(0, filename.length() - fileExtension.length() - 1);
 
         StringJoiner extension = new StringJoiner(".");

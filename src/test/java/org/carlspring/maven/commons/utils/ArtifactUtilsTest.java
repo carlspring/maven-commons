@@ -652,4 +652,63 @@ public class ArtifactUtilsTest
                      groupLevelMetadataPath);
     }
 
+    @Test
+    public void testThatConvertPathToArtifactResolvesNullType()
+    {
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(
+                "org/carlspring/commons/commons-http/3.0/commons-http-3.0");
+        assertEquals("3.0", artifact.getVersion());
+        assertEquals("commons-http", artifact.getArtifactId());
+        assertEquals("org.carlspring.commons", artifact.getGroupId());
+        assertNull(artifact.getType());
+    }
+
+    @Test
+    public void testThatConvertPathToArtifactResolvesNullTypeAndNullClassifier()
+    {
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(
+                "org/carlspring/commons/commons-http/1.2.3-alpha-beta-rc-1/commons-http-1.2.3-alpha-beta-rc-1");
+        assertEquals("1.2.3-alpha-beta-rc-1", artifact.getVersion());
+        assertEquals("commons-http", artifact.getArtifactId());
+        assertEquals("org.carlspring.commons", artifact.getGroupId());
+        assertNull(artifact.getClassifier());
+        assertNull(artifact.getType());
+    }
+
+    @Test
+    public void testThatConvertPathToArtifactResolvesNullTypeAndNullClassifierForSnapshot()
+    {
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(
+                "org/carlspring/commons/commons-http/1.2.3-alpha-beta-rc-1-SNAPSHOT/commons-http-1.2.3-alpha-beta-rc-1-SNAPSHOT");
+        assertEquals("1.2.3-alpha-beta-rc-1-SNAPSHOT", artifact.getVersion());
+        assertEquals("commons-http", artifact.getArtifactId());
+        assertEquals("org.carlspring.commons", artifact.getGroupId());
+        assertNull(artifact.getClassifier());
+        assertNull(artifact.getType());
+    }
+
+    @Test
+    public void testThatConvertPathToArtifactResolvesNullTypeAndClassifier()
+    {
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(
+                "org/carlspring/commons/commons-http/3.0/commons-http-3.0-sources");
+        assertEquals("3.0", artifact.getVersion());
+        assertEquals("commons-http", artifact.getArtifactId());
+        assertEquals("org.carlspring.commons", artifact.getGroupId());
+        assertEquals("sources", artifact.getClassifier());
+        assertNull(artifact.getType());
+    }
+
+    @Test
+    public void testThatConvertPathToArtifactResolvesProperTypeAndClassifier()
+    {
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(
+                "org/carlspring/commons/commons-http/1.2.3-alpha-beta-rc-1/commons-http-1.2.3-alpha-beta-rc-1-sources.zip");
+        assertEquals("1.2.3-alpha-beta-rc-1", artifact.getVersion());
+        assertEquals("commons-http", artifact.getArtifactId());
+        assertEquals("org.carlspring.commons", artifact.getGroupId());
+        assertEquals("sources", artifact.getClassifier());
+        assertEquals("zip", artifact.getType());
+    }
+
 }

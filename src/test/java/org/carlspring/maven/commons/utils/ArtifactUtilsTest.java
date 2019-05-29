@@ -254,10 +254,10 @@ public class ArtifactUtilsTest
         Artifact artifact16 = ArtifactUtils.convertPathToArtifact("org/carlspring/strongbox/metadata/strongbox-metadata");
 
         assertNotNull("Failed to covert path to artifact!", artifact16);
-        assertEquals("Failed to covert path to artifact!", "org.carlspring.strongbox.metadata", artifact16.getGroupId());
-        assertEquals("Failed to covert path to artifact!", "strongbox-metadata", artifact16.getArtifactId());
-        assertNull("Failed to covert path to artifact!", artifact16.getVersion());
-        assertNull("Failed to covert path to artifact!", artifact16.getBaseVersion());
+        assertEquals("Failed to covert path to artifact!", "org.carlspring", artifact16.getGroupId());
+        assertEquals("Failed to covert path to artifact!", "strongbox", artifact16.getArtifactId());
+        assertEquals("Failed to covert path to artifact!", "metadata", artifact16.getVersion());
+        assertEquals("Failed to covert path to artifact!", "metadata", artifact16.getBaseVersion());
         assertNull("Failed to covert path to artifact!", artifact16.getClassifier());
         assertNull("Failed to covert path to artifact!", artifact16.getType());
 
@@ -709,6 +709,51 @@ public class ArtifactUtilsTest
         assertEquals("org.carlspring.commons", artifact.getGroupId());
         assertEquals("sources", artifact.getClassifier());
         assertEquals("zip", artifact.getType());
+    }
+
+    @Test
+    public void testFunnyVersion()
+    {
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(
+                "org/springframework/session/spring-session-bom/Bean-SR5/spring-session-bom-Bean-SR5.pom");
+        assertEquals("Bean-SR5", artifact.getVersion());
+        assertEquals("spring-session-bom", artifact.getArtifactId());
+        assertEquals("org.springframework.session", artifact.getGroupId());
+        assertEquals("pom", artifact.getType());
+    }
+
+    @Test
+    public void testSimpleTextArtifactFile()
+    {
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(
+                "org/springframework/session/spring-session-bom/Bean-SR5/spring-session-bom-Bean-SR5.txt");
+        assertEquals("Bean-SR5", artifact.getVersion());
+        assertEquals("spring-session-bom", artifact.getArtifactId());
+        assertEquals("org.springframework.session", artifact.getGroupId());
+        assertEquals("txt", artifact.getType());
+    }
+
+    @Test
+    public void testSophisticatedType()
+    {
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(
+                "org/springframework/session/spring-session-bom/Bean-SR5/spring-session-bom-Bean-SR5-sources.jar.asc.md5");
+        assertEquals("Bean-SR5", artifact.getVersion());
+        assertEquals("spring-session-bom", artifact.getArtifactId());
+        assertEquals("org.springframework.session", artifact.getGroupId());
+        assertEquals("sources", artifact.getClassifier());
+        assertEquals("jar.asc.md5", artifact.getType());
+    }
+
+    @Test
+    public void testTextArtifactSignatureType()
+    {
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(
+                "org/springframework/session/spring-session-bom/Bean-SR5/spring-session-bom-Bean-SR5.txt.asc");
+        assertEquals("Bean-SR5", artifact.getVersion());
+        assertEquals("spring-session-bom", artifact.getArtifactId());
+        assertEquals("org.springframework.session", artifact.getGroupId());
+        assertEquals("txt.asc", artifact.getType());
     }
 
 }

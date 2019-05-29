@@ -2,7 +2,10 @@ package org.carlspring.maven.commons.util;
 
 import org.carlspring.maven.commons.DetachedArtifact;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -92,10 +95,7 @@ public class PathParser
 
             // corner cases - testConvertPathToArtifact#artifact16 and testConvertPathToArtifact#artifact30
             if (StringUtils.endsWithIgnoreCase(version, "-snapshot") ||
-                (StringUtils.containsIgnoreCase(filename, versionStripped) &&
-                 VERSION_PATTERN.matcher(version).matches()) ||
-                version.matches("\\d+")
-            )
+                StringUtils.containsIgnoreCase(filename, versionStripped))
             {
                 groupId = segments.get(0);
                 artifactId = segments.get(1);
@@ -176,9 +176,10 @@ public class PathParser
         artifact = new DetachedArtifact(groupId, artifactId, version, type, classifier);
         artifact.setBaseVersion(baseVersion);
 
-        logger.debug("Coordinates: {} [groupId: {}; artifactId: {}, version: {}, baseVersion: {}, classifier: {}, type: {}]",
-                     artifact, artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
-                     artifact.getBaseVersion(), artifact.getClassifier(), artifact.getType());
+        logger.debug(
+                "Coordinates: {} [groupId: {}; artifactId: {}, version: {}, baseVersion: {}, classifier: {}, type: {}]",
+                artifact, artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
+                artifact.getBaseVersion(), artifact.getClassifier(), artifact.getType());
     }
 
     private List<String> getSegments(String path)
@@ -186,7 +187,9 @@ public class PathParser
         // Windows style paths
         if (path.contains("\\\\") || path.contains("\\"))
         {
-            path = StringUtils.replaceEach(path, new String[] {"\\\\", "\\"}, new String[]{"/", "/"});
+            path = StringUtils.replaceEach(path, new String[]{ "\\\\",
+                                                               "\\" }, new String[]{ "/",
+                                                                                     "/" });
         }
 
         // remove beginning and trailing slashes.
@@ -226,8 +229,8 @@ public class PathParser
     }
 
     /**
-     * @param filename         the full filename
-     * @param baseVersion      the base version - this will be whatever the version in the path has
+     * @param filename    the full filename
+     * @param baseVersion the base version - this will be whatever the version in the path has
      * @return
      */
     private String extractSnapshotVersion(String filename,
@@ -237,7 +240,7 @@ public class PathParser
         int baseVersionEndPosition;
 
         // corner case: testArtifactToPathWithClassifierAndTimestampedSnapshot
-        if(StringUtils.containsIgnoreCase(filename, baseVersion))
+        if (StringUtils.containsIgnoreCase(filename, baseVersion))
         {
             baseVersionStartPosition = filename.indexOf(baseVersion);
             baseVersionEndPosition = baseVersionStartPosition + baseVersion.length();
@@ -294,27 +297,62 @@ public class PathParser
      */
     public static String getFileExtension(String filename)
     {
-        String fileExtension = StringUtils.substringAfterLast(filename, ".");
-        if (StringUtils.isBlank(fileExtension))
+
+        StringBuilder extension = new StringBuilder();
+
+        if (filename == null)
         {
             return null;
         }
-        String filenameWithoutExtension = filename.substring(0, filename.length() - fileExtension.length() - 1);
+        if (filename.endsWith(".md5"))
+        {
+            filename = filename.substring(0, filename.length() - ".md5".length());
+            extension.append("md5");
+        }
+        else if (filename.endsWith(".sha1"))
+        {
+            filename = filename.substring(0, filename.length() - ".sha1".length());
+            extension.append("md5");
+        }
 
-        StringJoiner extension = new StringJoiner(".");
+        if (filename.endsWith(".asc"))
+        {
+            filename = filename.substring(0, filename.length() - ".asc".length());
+            if (extension.length() > 0)
+            {
+                extension.insert(0, "asc.");
+            }
+            else
+            {
+                extension.append("asc");
+            }
+        }
+
+        String fileExtension = StringUtils.substringAfterLast(filename, ".");
+        if (StringUtils.isBlank(fileExtension))
+        {
+            return extension.length() > 0 ? extension.toString() : null;
+        }
+        if (extension.length() > 0)
+        {
+            extension.insert(0, fileExtension + ".");
+        }
+        else
+        {
+            extension.append(fileExtension);
+        }
+
+        String filenameWithoutExtension = filename.substring(0, filename.length() - fileExtension.length() - 1);
 
         for (String secondaryExtension : secondaryExtensions)
         {
             if (filenameWithoutExtension.endsWith("." + secondaryExtension))
             {
-                extension.add(secondaryExtension);
+                extension.insert(0, secondaryExtension + ".");
                 break;
             }
         }
 
-        // Append the actual extension (i.e. jar/gz/bz2/etc)
-        extension.add(fileExtension);
-
-        return extension.length() > 0 ? extension.toString() : null;
+        return extension.toString();
     }
 }
